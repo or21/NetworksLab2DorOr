@@ -34,9 +34,6 @@ public class HTMLParser {
 					findAllRelevantData(line, m_VideoIdentifier);
 				}
 			} 
-			catch (IOException e) {
-				e.printStackTrace();
-			}
 			catch (StringIndexOutOfBoundsException e) {
 				e.printStackTrace();
 			}
@@ -61,7 +58,6 @@ public class HTMLParser {
 			while (indexHref >= 0) {
 				if (endIdentifier == '"' || endIdentifier == "'".charAt(0)) {
 					String pageAddress = line.substring(indexHref, indexEnd + 1);
-					System.out.println(pageAddress);
 					if (isValidAddress(pageAddress)) {
 						if (linkIdentifier.equals(m_HtmlIdentifier)) {
 							m_HtmlPages.add(pageAddress);
@@ -78,7 +74,6 @@ public class HTMLParser {
 	}
 
 	private boolean isValidAddress(String pageAddress) {
-		// TODO: add validation of links
-		return true;
+		return (pageAddress.startsWith(m_HtmlIdentifier + '"' + '/') || pageAddress.startsWith(m_HtmlIdentifier + "'" + '/'));
 	}
 }
