@@ -9,6 +9,7 @@ public class HtmlRepository {
 	private HashMap<String, Response> m_ExistingResponses;
 	
 	private final Object LOCK_OBJECT = new Object();
+	private final Object PARSER_LOCK_OBJECT = new Object();
 	
 	public HtmlRepository() {
 		m_PendingResponsesToParse = new ArrayList<>();
@@ -17,6 +18,14 @@ public class HtmlRepository {
 	
 	public void AddContent(eLinkType i_Type, String i_Url, String i_Content, int i_ContentLength) {
 		
+	}
+	
+	public Response GetAndConsumeResponse() {
+		return null;
+	}
+	
+	public String GetAndConsumeUrl() {
+		return null;
 	}
 
 	public boolean ExistsUrlToParse(String i_Url) {
