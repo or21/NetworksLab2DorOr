@@ -5,7 +5,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-
 public class HTMLParser {
 
 	ArrayList<String> m_Pictures;
@@ -37,7 +36,7 @@ public class HTMLParser {
 			catch (StringIndexOutOfBoundsException e) {
 				e.printStackTrace();
 			}
-		} 
+		}
 		catch (FileNotFoundException e1) {
 			e1.printStackTrace();
 		} 
