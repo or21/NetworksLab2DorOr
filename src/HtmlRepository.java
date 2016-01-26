@@ -19,6 +19,20 @@ public class HtmlRepository {
 	public void AddContent(eLinkType i_Type, String i_Url, String i_Content, int i_ContentLength) {
 		
 	}
+	
+	public void AddUrl(String i_UrlToAdd) {
+		synchronized (PARSER_LOCK_OBJECT) {
+			if ((!m_ExistingResponses.containsKey(i_UrlToAdd)) && (!m_PendingUrlsToDownload.contains(i_UrlToAdd))) {
+					m_PendingUrlsToDownload.add(i_UrlToAdd);
+			}
+		}
+	}
+	
+	public void AddResponse(Response i_ResponeToAdd) {
+		synchronized (PARSER_LOCK_OBJECT) {
+			m_PendingResponsesToParse.add(i_ResponeToAdd);
+		}
+	}
 
 	public Response GetResponse() {
 		Response responseToParse = null;

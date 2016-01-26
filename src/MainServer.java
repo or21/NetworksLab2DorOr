@@ -14,6 +14,28 @@ public class MainServer {
 
 		//		HTMLParser parser = new HTMLParser();
 		//		parser.parse();
-
+		
+		// Send URL and get content and submit response
+		
+		HtmlRepository htmlRepo = new HtmlRepository();
+		while (true) {
+			String url = htmlRepo.GetUrl();
+			String response = SendHTTPGetRequest(url);
+			Response responseObj = buildResponseObj(response);
+			htmlRepo.AddResponse(responseObj);
+		}
+		
+		// Get response and parse it
+		while (true) {
+			Response response = htmlRepo.GetResponse();
+			String[] urlsFromRepo = parseResponse(response);
+			for (String url : urlsFromRepo) {
+				htmlRepo.AddUrl(url);
+			}
+		}
+		
+		buildResponsePage();
+		
+		// Finish
 	}
 }
