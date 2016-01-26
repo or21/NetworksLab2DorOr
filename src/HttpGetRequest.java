@@ -49,11 +49,12 @@ public class HttpGetRequest {
 			}
 		} else {
 			// Redirect
+			reader.close();
 			if (responseAsString.toString().contains("301")) {
 				String[] response = responseAsString.toString().split("\r\n");
 				for(String header : response) {
 					if (header.contains("Location: ")) {
-						new HttpGetRequest(m_Host, header.split(" ")[1], m_Repository).sendRequest();
+						return new HttpGetRequest(m_Host, header.split(" ")[1], m_Repository).sendRequest();
 					}
 				}
 			} else {
@@ -65,7 +66,7 @@ public class HttpGetRequest {
 						Pattern pattern = Pattern.compile("(https?://)([^:^/]*)(:\\d*)?(.*)?");
 						Matcher matcher = pattern.matcher(newHost);
 						if(matcher.find()) {
-							new HttpGetRequest(matcher.group(2), "/" + matcher.group(4), m_Repository).sendRequest();
+							return new HttpGetRequest(matcher.group(2), "/" + matcher.group(4), m_Repository).sendRequest();
 						}
 					}
 				}
