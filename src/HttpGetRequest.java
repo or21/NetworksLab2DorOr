@@ -57,10 +57,10 @@ public class HttpGetRequest {
 					if (header.contains("Location: ")) {
 						String newHost = header.split(" ")[1];
 						// http://www.google.co.il/page...
-						Pattern pattern = Pattern.compile("http[s]?://([a-zA-Z0-9.]*)/(.*)");
+						Pattern pattern = Pattern.compile("(https?://)([^:^/]*)(:\\d*)?(.*)?");
 						Matcher matcher = pattern.matcher(newHost);
 						if(matcher.find()) {
-							new HttpGetRequest(matcher.group(0), "/" + matcher.group(1), m_Repository).sendRequest();
+							new HttpGetRequest(matcher.group(2), "/" + matcher.group(4), m_Repository).sendRequest();
 						}
 					}
 				}
