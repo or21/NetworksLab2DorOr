@@ -28,6 +28,7 @@ public class HttpGetRequest {
 		PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))); 
 		out.println("GET " + m_RequestPage + " HTTP/1.1");
 		out.println("Host:" + m_Host);
+		out.println("chunked: false");
 		out.println(); 
 		out.flush();
 		
@@ -39,8 +40,12 @@ public class HttpGetRequest {
 		}
 		
 		if(responseAsString.toString().contains("200 OK")) {
-			while((line = reader.readLine()) != null) {
-				responseAsString.append(line + "\r\n");
+			if(responseAsString.toString().toLowerCase().contains("chunked")) {
+				readResponseAsChunked(reader, line, responseAsString);
+			} else {
+				while((line = reader.readLine()) != null) {
+					responseAsString.append(line).append("\r\n");
+				}
 			}
 		} else {
 			// Redirect
@@ -73,5 +78,21 @@ public class HttpGetRequest {
 		System.out.println(responseAsString.toString());
 		
 		return responseAsString.toString();
+	}
+
+	private void readResponseAsChunked(BufferedReader i_Reader, String line, StringBuilder responseAsString) throws IOException {
+		while((line = i_Reader.readLine()) != null) {
+			int amountToRead = Integer.parseInt(line, 16);
+			if (amountToRead == 0) {
+				break;
+			}
+			char[] buffer = new char[amountToRead + 1];
+			for(int i = 0; i <= amountToRead; i++) {
+				buffer[i] = (char) i_Reader.read();
+			}
+			i_Reader.readLine();
+			responseAsString.append(buffer);
+			responseAsString.append("\r\n");
+		}		
 	}
 }

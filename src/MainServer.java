@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.net.InetAddress;
 
 public class MainServer {
 	public static void main(String[] args) {
