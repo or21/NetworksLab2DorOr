@@ -72,5 +72,6 @@ public class HtmlRepository {
 
 	private String readFromUrl(String i_urlAddress) {
 		// TODO: send get request and read the Data from the response
+		return null;
 	}
 }
