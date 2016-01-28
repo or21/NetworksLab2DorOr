@@ -1,48 +1,29 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class HTMLParser {
 
-	ArrayList<String> m_Pictures;
-	ArrayList<String> m_Videos;
-	ArrayList<String> m_HtmlPages;
+	ArrayList<String> m_Urls;
 
 	private String m_HtmlIdentifier = "href=";
-	private String m_ImgaeIdentifier = "img src=";
+	private String m_ImageIdentifier = "img src=";
 	private String m_VideoIdentifier = "video src=";
 
 	public HTMLParser() {
-		m_Pictures = new ArrayList<String>();
-		m_Videos = new ArrayList<String>();
-		m_HtmlPages = new ArrayList<String>();
+		m_Urls = new ArrayList<>();
 	}
 
-	public void parse() {
-		File fileToRead = new File("test.html");
+	public ArrayList<String> parse(Response response) {
+		String responseAsString = response.getContent();
+		String replacedString = responseAsString.replaceAll("<", "\n<");
+		String[] lines = replacedString.split("\n");
 
-		try (BufferedReader br = new BufferedReader(new FileReader(fileToRead))) {
-			String line;
-			try {
-				while ((line = br.readLine()) != null) {
-					findAllRelevantData(line, m_HtmlIdentifier);
-					findAllRelevantData(line, m_ImgaeIdentifier);
-					findAllRelevantData(line, m_VideoIdentifier);
-				}
-			} 
-			catch (StringIndexOutOfBoundsException e) {
-				e.printStackTrace();
-			}
+		for(String line : lines) {
+			findAllRelevantData(line, m_HtmlIdentifier);
+			findAllRelevantData(line, m_ImageIdentifier);
+			findAllRelevantData(line, m_VideoIdentifier);
 		}
-		catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-		} 
-		catch (IOException e1) {
-			e1.printStackTrace();
-		}
+
+		return m_Urls;
 	}
 
 	private void findAllRelevantData(String line, String i_ObjectToLookFor) {
@@ -58,11 +39,7 @@ public class HTMLParser {
 				if (endIdentifier == '"' || endIdentifier == "'".charAt(0)) {
 					String pageAddress = line.substring(indexHref, indexEnd + 1);
 					if (isValidAddress(pageAddress)) {
-						if (linkIdentifier.equals(m_HtmlIdentifier)) {
-							m_HtmlPages.add(pageAddress);
-						} else if (linkIdentifier.equals(m_ImgaeIdentifier)) {
-							m_Pictures.add(pageAddress);
-						}
+						m_Urls.add(pageAddress);
 					}
 				}
 				indexHref = line.indexOf(linkIdentifier, indexHref + 1);

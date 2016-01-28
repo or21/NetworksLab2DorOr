@@ -35,6 +35,9 @@ public class GetRequest extends HeadRequest {
 				m_Params.put(keyValuePair[0], keyValuePair[1]);
 			}
 		}
+		// TODO: Main crawler logic should go here
+		// If parameters contains "crawler", start crawler with parameters
+		// Crawler method should return filename to open, and m_url will be that name
 	}
 
 	/*

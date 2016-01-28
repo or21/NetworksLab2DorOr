@@ -5,80 +5,83 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HttpGetRequest {
-	
+
 	private String m_Host;
 	private String m_RequestPage;
-	private final String USER_AGENT = "Mozilla/5.0";
-	private HtmlRepository m_Repository;
 
-	
-	public HttpGetRequest(String i_Host, String i_RequestPage, HtmlRepository i_Repository) {
+	public HttpGetRequest(String i_Host, String i_RequestPage) {
 		m_Host = i_Host;
-		m_Repository = i_Repository;
 		m_RequestPage = i_RequestPage;
 	}
-	
-	public String sendRequest() throws IOException {
+
+	public String sendRequestReceiveResponse() throws IOException {
 		Socket socket = new Socket(m_Host, 80); 
 
 		PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))); 
-		out.println("GET " + m_RequestPage + " HTTP/1.1");
+		out.println("GET " + m_RequestPage + " HTTP/1.0");
 		out.println("Host:" + m_Host);
-		out.println("chunked: false");
 		out.println(); 
 		out.flush();
-		
+
 		BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		StringBuilder responseAsString = new StringBuilder();
 		String line;
 		while (!(line = reader.readLine()).equals("")) {
 			responseAsString.append(line + "\r\n");
 		}
-		
-		if(responseAsString.toString().contains("200 OK")) {
-			if(responseAsString.toString().toLowerCase().contains("chunked")) {
+
+		String[] response = responseAsString.toString().split("\r\n");
+		HashMap<String, String> headers = createResponseHeaders(response);
+		String responseCode = headers.get("response_code");
+		if(responseCode.contains("200 OK")) {
+			boolean isChunked = headers.containsKey("transfer-encoding") && 
+					headers.get("transfer-encoding").equals("chunked");
+			responseAsString.append("\r\n");
+			if(isChunked) {
 				readResponseAsChunked(reader, line, responseAsString);
 			} else {
 				while((line = reader.readLine()) != null) {
 					responseAsString.append(line).append("\r\n");
 				}
 			}
-		} else {
-			// Redirect
 			reader.close();
-			if (responseAsString.toString().contains("301")) {
-				String[] response = responseAsString.toString().split("\r\n");
-				for(String header : response) {
-					if (header.contains("Location: ")) {
-						return new HttpGetRequest(m_Host, header.split(" ")[1], m_Repository).sendRequest();
-					}
-				}
-			} else {
-				String[] response = responseAsString.toString().split("\r\n");
-				for(String header : response) {
-					if (header.contains("Location: ")) {
-						String newHost = header.split(" ")[1];
-						// http://www.google.co.il/page...
-						Pattern pattern = Pattern.compile("(https?://)([^:^/]*)(:\\d*)?(.*)?");
-						Matcher matcher = pattern.matcher(newHost);
-						if(matcher.find()) {
-							return new HttpGetRequest(matcher.group(2), "/" + matcher.group(4), m_Repository).sendRequest();
-						}
-					}
+			socket.close();
+			return responseAsString.toString();
+		} else  {
+			reader.close();
+			socket.close();
+			if (headers.get("response_code").contains("301")) {	
+				return new HttpGetRequest(m_Host, headers.get("location")).sendRequestReceiveResponse();
+			} else if (headers.get("response_code").contains("302")) {
+				String newHost = headers.get("location");
+				Pattern pattern = Pattern.compile("(https?://)([^:^/]*)(:\\d*)?(.*)?");
+				Matcher matcher = pattern.matcher(newHost);
+				if(matcher.find()) {
+					return new HttpGetRequest(matcher.group(2), "/" + matcher.group(4)).sendRequestReceiveResponse();
 				}
 			}
 		}
-		
-		reader.close();
+		return null;
+	}
 
-		//print result
-		System.out.println(responseAsString.toString());
-		
-		return responseAsString.toString();
+	public static HashMap<String, String> createResponseHeaders(String[] response) {
+		HashMap<String, String> headers = new HashMap<String, String>();
+		headers.put("response_code", response[0].substring(response[0].indexOf(" ")));
+		for(int i = 1; i < response.length; i++) {
+			String[] keyValuePair = response[i].split(": ");
+			if (keyValuePair.length > 1) {
+				headers.put(
+						keyValuePair[0].toLowerCase().trim(),
+						keyValuePair[1].toLowerCase().trim()
+						);
+			}
+		}
+		return headers;
 	}
 
 	private void readResponseAsChunked(BufferedReader i_Reader, String line, StringBuilder responseAsString) throws IOException {

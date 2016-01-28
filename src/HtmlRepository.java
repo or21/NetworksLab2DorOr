@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.Semaphore;
 
 public class HtmlRepository {
 
@@ -8,35 +9,46 @@ public class HtmlRepository {
 
 	private HashMap<String, Response> m_ExistingResponses;
 
-	private final Object LOCK_OBJECT = new Object();
-	private final Object PARSER_LOCK_OBJECT = new Object();
+	private final static Object RESPONSES_LOCK_OBJECT = new Object();
+	private final static Object URLS_LOCK_OBJECT = new Object();
+	
+	private static HtmlRepository m_Instance;
 
-	public HtmlRepository() {
+	private HtmlRepository() {
 		m_PendingResponsesToParse = new ArrayList<>();
 		m_PendingUrlsToDownload = new ArrayList<>();
+		m_ExistingResponses = new HashMap<>();
 	}
-
-	public void AddContent(eLinkType i_Type, String i_Url, String i_Content, int i_ContentLength) {
-		
+	
+	public String Host; // Public property
+	
+	public static HtmlRepository GetInstance() {
+		if(m_Instance == null) {
+			synchronized (RESPONSES_LOCK_OBJECT) {
+				if(m_Instance == null) {
+					m_Instance = new HtmlRepository();
+				}
+			}
+		}
+		return m_Instance;
+	}
+	
+	public boolean IsReadyForDiagnostics() {
+		return m_PendingResponsesToParse.size() == 0 && m_PendingUrlsToDownload.size() == 0;
 	}
 	
 	public void AddUrl(String i_UrlToAdd) {
-		synchronized (PARSER_LOCK_OBJECT) {
+		synchronized (URLS_LOCK_OBJECT) {
 			if ((!m_ExistingResponses.containsKey(i_UrlToAdd)) && (!m_PendingUrlsToDownload.contains(i_UrlToAdd))) {
 					m_PendingUrlsToDownload.add(i_UrlToAdd);
+					m_ExistingResponses.put(i_UrlToAdd, null);
 			}
-		}
-	}
-	
-	public void AddResponse(Response i_ResponeToAdd) {
-		synchronized (PARSER_LOCK_OBJECT) {
-			m_PendingResponsesToParse.add(i_ResponeToAdd);
 		}
 	}
 
 	public Response GetResponse() {
 		Response responseToParse = null;
-		synchronized (PARSER_LOCK_OBJECT) {
+		synchronized (RESPONSES_LOCK_OBJECT) {
 			if (m_PendingResponsesToParse.size() != 0) {
 				responseToParse = m_PendingResponsesToParse.remove(0);
 			}
@@ -45,33 +57,21 @@ public class HtmlRepository {
 		return responseToParse;
 	}
 
+	public void AddResponse(Response i_ResponeToAdd) {
+		synchronized (RESPONSES_LOCK_OBJECT) {
+			m_PendingResponsesToParse.add(i_ResponeToAdd);
+			m_ExistingResponses.put(i_ResponeToAdd.getUrl(), i_ResponeToAdd);
+		}
+	}
+	
 	public String GetUrl() {
 		String urlToParse = null;
-		synchronized (PARSER_LOCK_OBJECT) {
+		synchronized (URLS_LOCK_OBJECT) {
 			if (m_PendingUrlsToDownload.size() != 0) {
 				urlToParse = m_PendingUrlsToDownload.remove(0);
-				// TODO : move to other place
-				String htmlContent = readFromUrl(urlToParse);
-				m_PendingResponsesToParse.add(new Response(urlToParse, htmlContent, "text/html"));
 			}
 		}
 		
 		return urlToParse;
-	}
-
-	public boolean ExistsUrlToParse(String i_Url) {
-		synchronized(LOCK_OBJECT) {
-			return m_ExistingResponses.containsKey(i_Url);
-		}
-	}
-
-	public boolean ExistsUrlToDownload(String i_Url) {
-		boolean exists = m_PendingUrlsToDownload.contains(i_Url);
-		return exists;
-	}
-
-	private String readFromUrl(String i_urlAddress) {
-		// TODO: send get request and read the Data from the response
-		return null;
 	}
 }

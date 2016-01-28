@@ -1,3 +1,4 @@
+import java.util.HashMap;
 
 public class Response {
 
@@ -23,8 +24,8 @@ public class Response {
 	}
 
 	private eLinkType determineContentType(String i_ContentType) {
-		return i_ContentType.equals(HTML_TYPE) ? eLinkType.HTML :
-			i_ContentType.startsWith(IMAGE_TYPE) ? eLinkType.IMAGE :
+		return i_ContentType.contains(HTML_TYPE) ? eLinkType.HTML :
+			i_ContentType.contains(IMAGE_TYPE) ? eLinkType.IMAGE :
 				eLinkType.VIDEO;
 	}
 	
@@ -42,5 +43,13 @@ public class Response {
 	
 	public String getUrl() {
 		return m_Url;
+	}
+	
+	public static Response GenerateResponse(String i_Url, String i_FullResponse) {
+		String[] headersAndContent = i_FullResponse.split("\r\n\r\n");
+		HashMap<String, String> headers = HttpGetRequest.createResponseHeaders(headersAndContent[0].split("\r\n"));
+		int contentLength = headers.containsKey("content-length") ? Integer.parseInt(headers.get("content-length")) : headersAndContent[1].length();
+		String contentType = headers.get("content-type");
+		return new Response(i_Url, headersAndContent[1], contentLength, contentType);
 	}
 }
