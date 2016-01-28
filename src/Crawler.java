@@ -18,11 +18,21 @@ public class Crawler {
 		request.start();
 		while(!m_HtmlRepository.IsReadyForDiagnostics()) {
 			
+			
+			
 		}
 		
 		
 		return null;
 		// TODO: Return filename
+	}
+	
+	public void UpdateNewParser() {
+		
+	}
+	
+	public void UpdateNewDownloader() {
+		
 	}
 
 	private boolean parsersAreBusy() {
