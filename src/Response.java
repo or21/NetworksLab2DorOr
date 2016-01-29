@@ -50,6 +50,12 @@ public class Response {
 		HashMap<String, String> headers = HttpGetRequest.createResponseHeaders(headersAndContent[0].split("\r\n"));
 		int contentLength = headers.containsKey("content-length") ? Integer.parseInt(headers.get("content-length")) : headersAndContent[1].length();
 		String contentType = headers.get("content-type");
-		return new Response(i_Url, headersAndContent[1], contentLength, contentType);
+		
+		StringBuilder responseContent = new StringBuilder();
+		for (int i = 1; i < headersAndContent.length; i++) {
+			responseContent.append(headersAndContent[i]).append("\n");
+		}
+		
+		return new Response(i_Url, responseContent.toString(), contentLength, contentType);
 	}
 }
