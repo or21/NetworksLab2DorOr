@@ -13,26 +13,65 @@ public class Crawler {
 	}
 	
 	public String Run() {
+		String filename = "Statistics results " + System.currentTimeMillis();
 		m_HtmlRepository.AddUrl("/");
 		Downloader request = new Downloader();
 		request.start();
+		
 		while(!m_HtmlRepository.IsReadyForDiagnostics()) {
+			UpdateNewParser();
+			UpdateNewDownloader();
+			for(Parser parser : m_Parsers) {
+				try {
+					parser.join();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 			
-			
-			
+			for(Downloader downloader : m_Downloaders) {
+				try {
+					downloader.join();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 		
-		
-		return null;
+		return filename;
 		// TODO: Return filename
 	}
 	
 	public void UpdateNewParser() {
-		
+		for(Parser parser : m_Parsers) {
+			if (parser == null ) {
+				parser = new Parser();
+				parser.start();
+				break;
+			} else if (!parser.isAlive()) {
+				parser = new Parser();
+				parser.start();
+			} else {
+				// All good with this one, they will get it
+			}
+		}
 	}
 	
 	public void UpdateNewDownloader() {
-		
+		for(Downloader downloader : m_Downloaders) {
+			if (downloader == null ) {
+				downloader = new Downloader();
+				downloader.start();
+				break;
+			} else if (!downloader.isAlive()) {
+				downloader = new Downloader();
+				downloader.start();
+			} else {
+				// All good with this one, they will get it
+			}
+		}
 	}
 
 	private boolean parsersAreBusy() {
