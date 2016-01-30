@@ -41,7 +41,6 @@ public class Crawler {
 				try {
 					parser.join();
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}

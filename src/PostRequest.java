@@ -1,5 +1,6 @@
 import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -35,17 +36,24 @@ public class PostRequest extends GetRequest {
 		if (!(m_Url.equals("/params_info.html") || m_Url.equals("/results.html"))) {
 			super.ReturnResponse();
 		}
-		else if (m_Url.equals("/params_info.html")){
+		else {
 			OutputStream outputStream = m_Socket.getOutputStream();
-			StringBuilder content = new StringBuilder();
-			content.append("<html>\n<head><title>Params Info</title><link rel=\"shortcut icon\" href=\"/favicon.jpg\" type=\"image/jpg\"/></head>\n<body>");
-			content.append("<b>Params</b>: <br>");
-			for (String key : m_Params.keySet()) {
-				content.append(key + ": " + m_Params.get(key) + "<br>");
-			}
+			if (m_Url.equals("/params_info.html")){
+				StringBuilder content = new StringBuilder();
+				content.append("<html>\n<head><title>Params Info</title><link rel=\"shortcut icon\" href=\"/favicon.jpg\" type=\"image/jpg\"/></head>\n<body>");
+				content.append("<b>Params</b>: <br>");
+				for (String key : m_Params.keySet()) {
+					content.append(key + ": " + m_Params.get(key) + "<br>");
+				}
 
-			content.append("</body>\n</html>");
-			m_Content = content.toString().getBytes();
+				content.append("</body>\n</html>");
+				m_Content = content.toString().getBytes();
+			} else {
+				System.out.println(m_Params);
+				Crawler webcrawler = new Crawler(m_Params);
+				String resultsFileName = webcrawler.Run();
+				m_Content = Tools.ReadFile(new File(resultsFileName));
+			}
 			m_Headers = m_ShouldSendChunked ? Tools.SetupChunkedResponseHeaders(m_Type) : Tools.SetupResponseHeaders(m_Content, m_Type);
 			StringBuilder responseString = new StringBuilder(createHeaders());
 			System.out.println(responseString);
@@ -72,10 +80,6 @@ public class PostRequest extends GetRequest {
 			} catch (IOException e) {
 				System.out.println("No socket to write the respone to.");
 			}
-		} else {
-			// TODO: Main Crawler logic goes here!
-			System.out.println(m_Params);
-			Crawler webcrawler = new Crawler(m_Params);
 		}
 	}
 }
