@@ -30,10 +30,18 @@ public class Crawler {
 	
 	public String Run() {
 		String filename = "Statistics results " + System.currentTimeMillis();
-		m_HtmlRepository.AddUrl("/");
-		Downloader request = new Downloader();
-		request.start();
-		
+//		m_HtmlRepository.AddUrl("/");
+		m_HtmlRepository.AddUrl("/robots.txt");
+//		Downloader request = new Downloader();
+		Downloader robotsRequest = new Downloader();
+//		request.start();
+		robotsRequest.start();
+		try {
+//			request.join();
+			robotsRequest.join();
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
 		while(!m_HtmlRepository.IsReadyForDiagnostics()) {
 			UpdateNewParser();
 			UpdateNewDownloader();

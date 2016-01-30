@@ -17,6 +17,11 @@ public class Downloader extends Thread {
 			e.printStackTrace();
 		}
 		System.out.println(fullResponse);
-		HtmlRepository.GetInstance().AddResponse(Response.GenerateResponse(url, fullResponse));
+		if (url.equals("/robots.txt")) {
+			String[] robotsResponse = fullResponse.split("\r\n\r\n");
+			HtmlRepository.GetInstance().ParseRobotsContent(robotsResponse[robotsResponse.length - 1]);
+		} else {
+			HtmlRepository.GetInstance().AddResponse(Response.GenerateResponse(url, fullResponse));
+		}
 	}
 }

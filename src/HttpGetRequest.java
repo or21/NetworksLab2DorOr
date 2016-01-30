@@ -18,15 +18,19 @@ public class HttpGetRequest {
 		m_Host = i_Host;
 		m_RequestPage = i_RequestPage;
 	}
-
-	public String sendRequestReceiveResponse() throws IOException {
-		Socket socket = new Socket(m_Host, 80); 
-
-		PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))); 
+	
+	private void sendRequest(Socket i_Socket) throws IOException {
+		PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(i_Socket.getOutputStream()))); 
 		out.println("GET " + m_RequestPage + " HTTP/1.0");
 		out.println("Host:" + m_Host);
 		out.println(); 
 		out.flush();
+	}
+
+	public String sendRequestReceiveResponse() throws IOException {
+		Socket socket = new Socket(m_Host, 80); 
+
+		sendRequest(socket);
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		StringBuilder responseAsString = new StringBuilder();
