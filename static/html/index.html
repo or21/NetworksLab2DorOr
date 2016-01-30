@@ -1,92 +1,33 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Exercise #1: November 2015</title>
-	<link rel="shortcut icon" href="/favicon.ico"/>
-</head>
-<body>
-	<div>
-		<h1 style="color:green"><marquee>Computer networks 2014/2015</marquee></h1>
-	</div>
-	<div style="margin-top:150px">
-		<h2 style="color:blue; text-align: center;">Dor Samet, Or Brand</h2>
-	</div>
-	<div style="margin-top: 30px" align="center">
-		<table>
-			<tbody>
-				<tr>
-					<td>Show me the last image:</td>
-					<td><a href="#last_image">Jump to the last image!</a></td>
-				</tr>
-				<tr>
-					<td>Show me the form:</td>
-					<td><a href="#form">Jump to the amazing form!</a></td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
-		
-	<div style="margin-top: 30px">
-		<h3> Look at these AWESOME computer networks images</h3>
-		<div align="center">
-			<div style="display:inline-block">
-				<img src="/computer_network_background.jpg" width="200" height="200">
-			</div>
-			<div style="display:inline-block">
-				<img src="http://www.nptechnologies.ca/wp-content/uploads/2012/04/computer-network.jpg" width="200" height="200">
-			</div>
-			<div style="display:inline-block">
-				<img src="http://secureacom.com.au/wp-content/uploads/2014/07/sydney-business-computer-network-service.jpg" width="200" height="200">
-			</div>
-			<div style="display:inline-block">
-				<img src="http://pccomprepairinc.com/wp-content/uploads/2012/11/142310004.jpg" width="200" height="200">
-			</div>
-			<div style="display:inline-block">
-				<img src="http://dallascomputerpros.com/wp-content/uploads/2014/03/computer-network.png" width="200" height="200">
-			</div>
-		</div>
-	</div>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><style type="text/css"></style></head><body>
 
-	<div align="center">
-		<table>
-			<tbody>
-				<tr>
-					<td>This is the course website link</td>
-					<td><a href="http://moodle.idc.ac.il/course/view.php?id=22816">Click me!</td>
-				</tr>
-				<tr>
-					<td>This is a link to a website :)</td>
-					<td><a href="http://www.ynet.co.il/">No, Click me!</a></td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
-
-	<hr style="margin-top: 40px">
 	
-	<div align="center">
-		<img id="last_image" src="http://1.bp.blogspot.com/-_OS81yb49_M/T8yAItbsj-I/AAAAAAAAAl4/53GRRwkmfm8/s1600/A++grade.jpg" width="200" height="200">
-		<h3>Write a submission here:</h3>
-		<form action="params_info.html" method="post" id="form">
-			Sender:<br>
-			<input type="text" name="sender"><br>
-			
-			Receiver:<br>
-			<input type="text" name="receiver"><br>
 
-			Subject:<br>
-			<input type="text" name="subject"><br>
 
-			Message Field:<br>
-			<textarea name="comment" form="usrform">What did you think?</textarea><br>
+<div>
+	<form action="/results.html" method="POST" onsubmit="try {return window.confirm(&quot;You are submitting information to an external page.\nAre you sure?&quot;);} catch (e) {return false;}">
+	    <table border="0">
+	        <tbody><tr>
+	        	<td>Domain:</td>
+				<td> <input type="textbox" name="textBoxURL"></td>
+	        </tr>
 
-			Did you like our project?
-			<input type="checkbox" name="checkbox"><br>
+	        <tr>
+				<td>Perform full TCP port scan</td>
+				<td> <input type="checkbox" name="checkBoxTCP"></td>
+	        </tr>
 
-			<button>Send my greetings</button>
-		</form>
-	</div>
-</body>
-</html>
+			<tr>
+				<td>disrespect robots.txt</td>
+	          	<td> <input type="checkbox" name="checkBoxRobots"></td>
+	        </tr>
+
+	        <tr>
+	        	<td></td>
+				<td><input type="submit" value="Start crawler"></td>
+	        </tr>
+	    </tbody></table>
+  	</form>
+
+</div>
+
+</body></html>
