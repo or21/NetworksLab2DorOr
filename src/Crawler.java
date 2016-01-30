@@ -1,13 +1,29 @@
+import java.util.HashMap;
 
 public class Crawler {
+	
+	private final String TEXT_BOX_HOST_KEY = "textBoxURL";
+	private final String CHECK_BOX_IGNORE_ROBOTS_KEY = "checkBoxIgnoreRobots";
+	private final String CHECK_BOX_TCP_PORT_SCAN_KEY = "checkBoxTCPPortScan";
+	// TODO: Add this later:
+	private final String CHECK_BOX_SHOULD_USE_CHUNKED = "checkBoxShouldUseChunked";
 	
 	private HtmlRepository m_HtmlRepository;
 	private Parser[] m_Parsers;
 	private Downloader[] m_Downloaders;
 	
-	public Crawler(String i_Host) {
+	private String m_Host;
+	private boolean m_TCPPortScanEnabled = false;
+	private boolean m_IgnoreRobotsEnabled = false;
+	
+	public Crawler(HashMap<String, String> i_Params) throws IllegalArgumentException {
 		m_HtmlRepository = HtmlRepository.GetInstance();
-		m_HtmlRepository.Host = i_Host;
+		m_HtmlRepository.Host = i_Params.get(TEXT_BOX_HOST_KEY);
+		if (m_HtmlRepository.Host == null || m_HtmlRepository.Host.length() == 0) {
+			throw new IllegalArgumentException("Hostname not specified");
+		}
+		m_TCPPortScanEnabled = i_Params.containsKey(CHECK_BOX_TCP_PORT_SCAN_KEY);
+		m_IgnoreRobotsEnabled = i_Params.containsKey(CHECK_BOX_IGNORE_ROBOTS_KEY);
 		m_Parsers = new Parser[2]; // TODO: Use configfile
 		m_Downloaders = new Downloader[10]; // TODO: Use configfile
 	}

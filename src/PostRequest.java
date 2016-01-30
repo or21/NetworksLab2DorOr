@@ -32,10 +32,10 @@ public class PostRequest extends GetRequest {
 	 */
 	@Override
 	public void ReturnResponse() throws IOException {
-		if (!m_Url.equals("/params_info.html")) {
+		if (!(m_Url.equals("/params_info.html") || m_Url.equals("/results.html"))) {
 			super.ReturnResponse();
 		}
-		else {
+		else if (m_Url.equals("/params_info.html")){
 			OutputStream outputStream = m_Socket.getOutputStream();
 			StringBuilder content = new StringBuilder();
 			content.append("<html>\n<head><title>Params Info</title><link rel=\"shortcut icon\" href=\"/favicon.jpg\" type=\"image/jpg\"/></head>\n<body>");
@@ -72,6 +72,10 @@ public class PostRequest extends GetRequest {
 			} catch (IOException e) {
 				System.out.println("No socket to write the respone to.");
 			}
+		} else {
+			// TODO: Main Crawler logic goes here!
+			System.out.println(m_Params);
+			Crawler webcrawler = new Crawler(m_Params);
 		}
 	}
 }
