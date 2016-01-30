@@ -1,12 +1,13 @@
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class HTMLParser {
 
 	ArrayList<String> m_Urls;
 
-	private String m_HtmlIdentifier = "href=";
-	private String m_ImageIdentifier = "img src=";
-	private String m_VideoIdentifier = "video src=";
+	private String m_HtmlOrVideoIdentifier = "<a ";
+	private String m_ImageIdentifier = "<img ";
 
 	public HTMLParser() {
 		m_Urls = new ArrayList<>();
@@ -18,38 +19,27 @@ public class HTMLParser {
 		String[] lines = replacedString.split("\n");
 
 		for(String line : lines) {
-			findAllRelevantData(line, m_HtmlIdentifier);
+			findAllRelevantData(line, m_HtmlOrVideoIdentifier);
 			findAllRelevantData(line, m_ImageIdentifier);
-			findAllRelevantData(line, m_VideoIdentifier);
 		}
 
 		return m_Urls;
 	}
 
 	private void findAllRelevantData(String line, String i_ObjectToLookFor) {
-		String linkIdentifier = i_ObjectToLookFor;
-		int indexEnd;
-		char endIdentifier;
-		if (line.contains(linkIdentifier)) {
-			int indexHref = line.indexOf(linkIdentifier);
-			endIdentifier = line.charAt(indexHref + linkIdentifier.length());
-			indexEnd = line.indexOf(endIdentifier, indexHref + linkIdentifier.length() + 1);
-
-			while (indexHref >= 0) {
-				if (endIdentifier == '"' || endIdentifier == "'".charAt(0)) {
-					String pageAddress = line.substring(indexHref, indexEnd + 1);
-					if (isValidAddress(pageAddress)) {
-						m_Urls.add(pageAddress);
-					}
-				}
-				indexHref = line.indexOf(linkIdentifier, indexHref + 1);
-				endIdentifier = line.charAt(indexHref + linkIdentifier.length());
-				indexEnd = line.indexOf(endIdentifier, indexHref + linkIdentifier.length() + 1);
-			}
+		Pattern pattern = Pattern.compile(i_ObjectToLookFor + "(.*)=('|\")(.*)('|\")>");
+		Matcher matcher = pattern.matcher(line);
+		if (matcher.find()) {
+			filterAddress(matcher.group(3), i_ObjectToLookFor);
 		}
 	}
 
-	private boolean isValidAddress(String pageAddress) {
-		return (pageAddress.startsWith(m_HtmlIdentifier + '"' + '/') || pageAddress.startsWith(m_HtmlIdentifier + "'" + '/'));
+	private void filterAddress(String i_PageAddress, String i_LinkIdentifier) {
+		if (i_PageAddress.startsWith("/")) {
+			m_Urls.add(i_PageAddress);
+		}
+		else {
+			HtmlRepository.GetInstance().AddExternalLink(i_PageAddress);
+		}
 	}
 }

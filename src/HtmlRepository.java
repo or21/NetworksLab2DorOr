@@ -6,6 +6,7 @@ public class HtmlRepository {
 
 	private ArrayList<String> m_PendingUrlsToDownload;	
 	private ArrayList<Response> m_PendingResponsesToParse;
+	private ArrayList<String> m_ExternalLinks;
 
 	private HashSet<String> m_DisallowedUrls;
 	private HashSet<String> m_AllowedUrls;
@@ -14,7 +15,8 @@ public class HtmlRepository {
 
 	private final static Object RESPONSES_LOCK_OBJECT = new Object();
 	private final static Object URLS_LOCK_OBJECT = new Object();
-	
+	private final static Object EXTERNALS_LOCK_OBJECT = new Object();
+
 	private static HtmlRepository m_Instance;
 
 	private HtmlRepository() {
@@ -23,10 +25,11 @@ public class HtmlRepository {
 		m_ExistingResponses = new HashMap<>();
 		m_DisallowedUrls = new HashSet<>();
 		m_AllowedUrls = new HashSet<>();
+		m_ExternalLinks = new ArrayList<>();
 	}
-	
+
 	public String Host; // Public property
-	
+
 	public static HtmlRepository GetInstance() {
 		if(m_Instance == null) {
 			synchronized (RESPONSES_LOCK_OBJECT) {
@@ -37,16 +40,16 @@ public class HtmlRepository {
 		}
 		return m_Instance;
 	}
-	
+
 	public boolean IsReadyForDiagnostics() {
 		return m_PendingResponsesToParse.size() == 0 && m_PendingUrlsToDownload.size() == 0;
 	}
-	
+
 	public void AddUrl(String i_UrlToAdd) {
 		synchronized (URLS_LOCK_OBJECT) {
 			if ((!m_ExistingResponses.containsKey(i_UrlToAdd)) && (!m_PendingUrlsToDownload.contains(i_UrlToAdd))) {
-					m_PendingUrlsToDownload.add(i_UrlToAdd);
-					m_ExistingResponses.put(i_UrlToAdd, null);
+				m_PendingUrlsToDownload.add(i_UrlToAdd);
+				m_ExistingResponses.put(i_UrlToAdd, null);
 			}
 		}
 	}
@@ -58,7 +61,7 @@ public class HtmlRepository {
 				responseToParse = m_PendingResponsesToParse.remove(0);
 			}
 		}
-		
+
 		return responseToParse;
 	}
 
@@ -68,7 +71,7 @@ public class HtmlRepository {
 			m_ExistingResponses.put(i_ResponeToAdd.getUrl(), i_ResponeToAdd);
 		}
 	}
-	
+
 	public String GetUrl() {
 		String urlToParse = null;
 		synchronized (URLS_LOCK_OBJECT) {
@@ -76,7 +79,7 @@ public class HtmlRepository {
 				urlToParse = m_PendingUrlsToDownload.remove(0);
 			}
 		}
-		
+
 		return urlToParse;
 	}
 	
@@ -91,5 +94,13 @@ public class HtmlRepository {
 			}
 		}
 		System.out.println(i_RobotsContent);
+	}
+
+	public void AddExternalLink(String i_LinkToAdd) {
+		synchronized (EXTERNALS_LOCK_OBJECT) {
+			if (!m_ExternalLinks.contains(i_LinkToAdd)) {
+				m_ExternalLinks.add(i_LinkToAdd);
+			}
+		}
 	}
 }
