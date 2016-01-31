@@ -46,6 +46,9 @@ public class Response {
 	}
 	
 	public static Response GenerateResponse(String i_Url, String i_FullResponse) {
+		if (i_FullResponse == null) {
+			return null;
+		}
 		String[] headersAndContent = i_FullResponse.split("\r\n\r\n");
 		HashMap<String, String> headers = HttpGetRequest.createResponseHeaders(headersAndContent[0].split("\r\n"));
 		int contentLength = headers.containsKey("content-length") ? Integer.parseInt(headers.get("content-length")) : headersAndContent[1].length();

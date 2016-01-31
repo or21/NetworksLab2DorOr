@@ -36,6 +36,7 @@ public class HTMLParser {
 
 	private void filterAddress(String i_PageAddress, String i_LinkIdentifier) {
 		if (i_PageAddress.startsWith("/")) {
+			System.out.println(i_PageAddress);
 			m_Urls.add(i_PageAddress);
 		}
 		else {

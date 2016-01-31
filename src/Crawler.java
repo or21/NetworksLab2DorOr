@@ -16,6 +16,24 @@ public class Crawler {
 	private boolean m_TCPPortScanEnabled = false;
 	private boolean m_IgnoreRobotsEnabled = false;
 	
+	private final Runnable onAddedResponse = new Runnable() {
+
+		@Override
+		public void run() {
+			UpdateNewParser();
+		}
+		
+	};
+	
+	private final Runnable onAddedUrl = new Runnable() {
+
+		@Override
+		public void run() {
+			UpdateNewDownloader();
+		}
+		
+	};
+	
 	public Crawler(HashMap<String, String> i_Params) throws IllegalArgumentException {
 		m_HtmlRepository = HtmlRepository.GetInstance();
 		m_HtmlRepository.Host = i_Params.get(TEXT_BOX_HOST_KEY);
@@ -30,15 +48,19 @@ public class Crawler {
 	
 	public String Run() {
 		String filename = "Statistics results " + System.currentTimeMillis();
-//		m_HtmlRepository.AddUrl("/");
 		m_HtmlRepository.AddUrl("/robots.txt");
-//		Downloader request = new Downloader();
-		Downloader robotsRequest = new Downloader();
-//		request.start();
+		Downloader robotsRequest = new Downloader(null);
 		robotsRequest.start();
 		try {
-//			request.join();
 			robotsRequest.join();
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
+		m_HtmlRepository.AddUrl("/");
+		Downloader request = new Downloader(onAddedResponse);
+		request.start();
+		try {
+			request.join();
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
@@ -62,7 +84,7 @@ public class Crawler {
 				}
 			}
 		}
-		
+		System.out.println("We finished parsing through everything! :)");
 		return filename;
 		// TODO: Return filename
 	}
@@ -70,11 +92,11 @@ public class Crawler {
 	public void UpdateNewParser() {
 		for(Parser parser : m_Parsers) {
 			if (parser == null ) {
-				parser = new Parser();
+				parser = new Parser(onAddedUrl);
 				parser.start();
 				break;
 			} else if (!parser.isAlive()) {
-				parser = new Parser();
+				parser = new Parser(onAddedUrl);
 				parser.start();
 			} else {
 				// All good with this one, they will get it
@@ -85,11 +107,11 @@ public class Crawler {
 	public void UpdateNewDownloader() {
 		for(Downloader downloader : m_Downloaders) {
 			if (downloader == null ) {
-				downloader = new Downloader();
+				downloader = new Downloader(onAddedResponse);
 				downloader.start();
 				break;
 			} else if (!downloader.isAlive()) {
-				downloader = new Downloader();
+				downloader = new Downloader(onAddedResponse);
 				downloader.start();
 			} else {
 				// All good with this one, they will get it
