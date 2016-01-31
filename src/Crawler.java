@@ -118,18 +118,6 @@ public class Crawler {
 			}
 		}
 	}
-
-	private boolean parsersAreBusy() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	private boolean downloadersAreBusy() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-	
-	
 	
 	//		HtmlRepository.GetInstance().AddUrl("/");
 	//		HtmlRepository.GetInstance().Host = "www.ynet.co.il";
@@ -156,5 +144,4 @@ public class Crawler {
 	//		// Finish
 	//	}
 	//
-
 }
