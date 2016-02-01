@@ -14,7 +14,7 @@ public class HTMLParser {
 	}
 
 	public ArrayList<String> parse(Response response) {
-		String responseAsString = response.getContent();
+		String responseAsString = response.GetContent();
 		String replacedString = responseAsString.replaceAll("<", "\n<");
 		String[] lines = replacedString.split("\n");
 
