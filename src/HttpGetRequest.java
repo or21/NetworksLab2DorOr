@@ -13,20 +13,39 @@ public class HttpGetRequest {
 
 	private String m_Host;
 	private String m_RequestPage;
+	private String m_PrevRequestPage;
 
 	public HttpGetRequest(String i_Host, String i_RequestPage) {
 		m_Host = i_Host;
 		m_RequestPage = i_RequestPage;
+		m_PrevRequestPage = "";
+	}
+	
+	public HttpGetRequest(String i_Host, String i_RequestPage, String i_PrevRequestPage) {
+		this(i_Host, i_RequestPage);
+		m_PrevRequestPage = i_PrevRequestPage;
+	}
+	
+	private void sendRequest(Socket i_Socket) throws IOException {
+		PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(i_Socket.getOutputStream()))); 
+		if (m_RequestPage.startsWith("//")) {
+			m_RequestPage = m_RequestPage.substring(1);
+		}
+		if (m_RequestPage.contains(m_Host)) {
+			m_RequestPage = m_RequestPage.substring(m_RequestPage.lastIndexOf(m_Host) + m_Host.length());
+		}
+		System.out.println("URL TO SEARCH: " + m_RequestPage);
+
+		out.println("GET " + m_RequestPage + " HTTP/1.0");
+		out.println("Host:" + m_Host);
+		out.println(); 
+		out.flush();
 	}
 
 	public String sendRequestReceiveResponse() throws IOException {
 		Socket socket = new Socket(m_Host, 80); 
 
-		PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))); 
-		out.println("GET " + m_RequestPage + " HTTP/1.0");
-		out.println("Host:" + m_Host);
-		out.println(); 
-		out.flush();
+		sendRequest(socket);
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		StringBuilder responseAsString = new StringBuilder();
@@ -55,15 +74,20 @@ public class HttpGetRequest {
 		} else  {
 			reader.close();
 			socket.close();
+			if (headers.containsKey("location") && headers.get("location").equals(m_PrevRequestPage)) {
+				return null;
+			}
 			if (headers.get("response_code").contains("301")) {	
-				return new HttpGetRequest(m_Host, headers.get("location")).sendRequestReceiveResponse();
+				return new HttpGetRequest(m_Host, headers.get("location").substring(headers.get("location").lastIndexOf(m_Host + "/") + m_Host.length()), headers.get("location")).sendRequestReceiveResponse();
 			} else if (headers.get("response_code").contains("302")) {
 				String newHost = headers.get("location");
 				Pattern pattern = Pattern.compile("(https?://)([^:^/]*)(:\\d*)?(.*)?");
 				Matcher matcher = pattern.matcher(newHost);
 				if(matcher.find()) {
-					return new HttpGetRequest(matcher.group(2), "/" + matcher.group(4)).sendRequestReceiveResponse();
+					return new HttpGetRequest(matcher.group(2), "/" + matcher.group(4), headers.get("location")).sendRequestReceiveResponse();
 				}
+			} else {
+				System.out.println(headers.get("response_code"));
 			}
 		}
 		return null;

@@ -1,12 +1,17 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class HtmlRepository {
 
 	private ArrayList<String> m_PendingUrlsToDownload;	
 	private ArrayList<Response> m_PendingResponsesToParse;
 	private ArrayList<String> m_ExternalLinks;
+
+	private HashSet<String> m_DisallowedUrls;
+	private HashSet<String> m_AllowedUrls;
+	
 	private HashMap<String, Response> m_ExistingResponses;
 	
 	private ArrayList<String> m_ImagesTypes;
@@ -23,6 +28,8 @@ public class HtmlRepository {
 		m_PendingResponsesToParse = new ArrayList<>();
 		m_PendingUrlsToDownload = new ArrayList<>();
 		m_ExistingResponses = new HashMap<>();
+		m_DisallowedUrls = new HashSet<>();
+		m_AllowedUrls = new HashSet<>();
 		m_ExternalLinks = new ArrayList<>();
 		
 		m_ImagesTypes = new ArrayList<String>(Arrays.asList("bmp", "jpg", "png", "gif", "ico")); // change to config
@@ -83,6 +90,19 @@ public class HtmlRepository {
 		}
 
 		return urlToParse;
+	}
+	
+	public void ParseRobotsContent(String i_RobotsContent) {
+		String[] lines = i_RobotsContent.split("\r\n");
+		for(String line : lines) {
+			String[] ruleResultPair = line.split(": ");
+			if (ruleResultPair[0].toLowerCase().equals("allow")) {
+				m_AllowedUrls.add(ruleResultPair[1]);
+			} else if (ruleResultPair[0].toLowerCase().equals("disallow")) {
+				m_DisallowedUrls.add(ruleResultPair[1]);
+			}
+		}
+		System.out.println(i_RobotsContent);
 	}
 
 	public void AddExternalLink(String i_LinkToAdd) {
