@@ -21,7 +21,6 @@ public class Crawler {
 	private final String CHECK_BOX_IGNORE_ROBOTS_KEY = "checkBoxIgnoreRobots";
 	private final String CHECK_BOX_TCP_PORT_SCAN_KEY = "checkBoxTCPPortScan";
 	private final String MAIN_PAGE_NAME = "static/html/index.html";
-	// TODO: Add this later:
 	private final String CHECK_BOX_SHOULD_USE_CHUNKED = "checkBoxShouldUseChunked";
 
 	private HtmlRepository m_HtmlRepository;
