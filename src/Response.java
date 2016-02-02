@@ -28,6 +28,7 @@ public class Response {
 		m_Content = i_Content;
 		m_ContentLength = i_ContentLength;
 		m_ContentType = determineContentType(i_ContentType);
+		findExtension();
 	}
 
 	private eLinkType determineContentType(String i_ContentType) {

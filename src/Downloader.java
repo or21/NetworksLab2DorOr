@@ -2,6 +2,7 @@ import java.io.IOException;
 
 public class Downloader extends Thread {
 
+	
 	private Runnable m_OnAddedResponseEvent;
 
 	public Downloader(Runnable i_OnAddedResponseEvent) {

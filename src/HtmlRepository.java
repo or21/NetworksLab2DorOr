@@ -51,7 +51,11 @@ public class HtmlRepository {
 	}
 
 	public boolean IsReadyForDiagnostics() {
-		return m_PendingResponsesToParse.size() == 0 && m_PendingUrlsToDownload.size() == 0;
+		synchronized(RESPONSES_LOCK_OBJECT) {
+			synchronized(URLS_LOCK_OBJECT) {
+				return m_PendingResponsesToParse.size() == 0 && m_PendingUrlsToDownload.size() == 0;
+			}
+		}
 	}
 
 	public void AddUrl(String i_UrlToAdd) {
