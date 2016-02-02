@@ -167,6 +167,7 @@ public class HtmlRepository {
 		}
 
 		StringBuilder response = new StringBuilder();
+		
 		response.append("<html><head><title>Your results are here!</title></head><body>");
 		response.append("Crawler respected robots.txt: ").append(!i_IgnoreRobotsEnabled).append("<br>");
 		response.append("Number of images is: ").append(numberOfImages).append("<br>");
@@ -188,6 +189,7 @@ public class HtmlRepository {
 			}
 			response.append("<br>");
 		}
+		
 		response.append("</body></html>");
 
 		return response.toString();
