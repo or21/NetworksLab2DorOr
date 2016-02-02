@@ -1,6 +1,6 @@
 import java.io.IOException;
 
-public class Downloader extends Thread {	
+public class Downloader extends Thread {
 
 	private Runnable m_OnAddedResponseEvent;
 
@@ -20,13 +20,12 @@ public class Downloader extends Thread {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			System.out.println(fullResponse);
-			
+
 			if (fullResponse == null) {
 				// TODO: Remove from hashmap once basic flow works
 				continue;
 			}
-			
+
 			if (url.equals("/robots.txt")) {
 				String[] robotsResponse = fullResponse.split("\r\n\r\n");
 				HtmlRepository.GetInstance().ParseRobotsContent(robotsResponse[robotsResponse.length - 1]);

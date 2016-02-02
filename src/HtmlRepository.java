@@ -102,7 +102,7 @@ public class HtmlRepository {
 				m_DisallowedUrls.add(ruleResultPair[1]);
 			}
 		}
-		System.out.println(i_RobotsContent);
+		System.out.println("Robots: " + i_RobotsContent);
 	}
 
 	public void AddExternalLink(String i_LinkToAdd) {
@@ -125,9 +125,12 @@ public class HtmlRepository {
 		int numOfInternalLinks = m_ExistingResponses.size();
 		int numOfExternalLinks = m_ExternalLinks.size();
 		for (String existingKey : m_ExistingResponses.keySet()) {
-			Response values = m_ExistingResponses.get(existingKey);
-			String extension = values.GetExtension();
-			int contentLength = values.GetContentLength();
+			Response response = m_ExistingResponses.get(existingKey);
+			if (response == null) {
+				continue;
+			}
+			String extension = response.GetExtension();
+			int contentLength = response.GetContentLength();
 			if (m_ImagesTypes.contains(extension)) {
 				numberOfImages++;
 				totalImagesSize += contentLength;

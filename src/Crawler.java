@@ -65,8 +65,6 @@ public class Crawler {
 			e1.printStackTrace();
 		}
 		while(!m_HtmlRepository.IsReadyForDiagnostics()) {
-			UpdateNewParser();
-			UpdateNewDownloader();
 			for(Parser parser : m_Parsers) {
 				try {
 					parser.join();
