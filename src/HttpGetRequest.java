@@ -75,7 +75,11 @@ public class HttpGetRequest {
 				return null; // 
 			}
 			if (headers.get("response_code").contains("301")) {	
-				return new HttpGetRequest(m_Host, headers.get("location").substring(headers.get("location").lastIndexOf(m_Host + "/") + m_Host.length()), headers.get("location")).sendRequestReceiveResponse();
+				if (headers.get("location").contains(m_Host)) {
+					return new HttpGetRequest(m_Host, headers.get("location").substring(headers.get("location").lastIndexOf(m_Host + "/") + m_Host.length()), headers.get("location")).sendRequestReceiveResponse();
+				} else {
+					return new HttpGetRequest(m_Host, headers.get("location"), headers.get("location")).sendRequestReceiveResponse();
+				}
 			} else if (headers.get("response_code").contains("302")) {
 				String newHost = headers.get("location");
 				Pattern pattern = Pattern.compile("(https?://)([^:^/]*)(:\\d*)?(.*)?");
