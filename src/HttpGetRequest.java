@@ -38,8 +38,8 @@ public class HttpGetRequest {
 		if (m_RequestPage.contains(m_Host)) {
 			m_RequestPage = m_RequestPage.substring(m_RequestPage.lastIndexOf(m_Host) + m_Host.length());
 		}
-		
-		out.println("GET " + m_RequestPage + " HTTP/1.0");
+
+		out.println("GET " + m_RequestPage + (Crawler.IsChunkedEnabled() ? " HTTP/1.1" : " HTTP/1.0"));
 		out.println("Host:" + m_Host);
 		out.println(); 
 		out.flush();

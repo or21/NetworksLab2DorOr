@@ -29,6 +29,7 @@ public class Crawler {
 	private Downloader[] m_Downloaders;
 	private boolean m_TCPPortScanEnabled = false;
 	private boolean m_IgnoreRobotsEnabled = false;
+	private static boolean m_IsReadingChunkedEnabled = false;
 	private ArrayList<Integer> m_OpenPorts;
 
 	private final Runnable onAddedResponse = new Runnable() {
@@ -57,6 +58,7 @@ public class Crawler {
 
 		m_TCPPortScanEnabled = i_Params.containsKey(CHECK_BOX_TCP_PORT_SCAN_KEY);
 		m_IgnoreRobotsEnabled = i_Params.containsKey(CHECK_BOX_IGNORE_ROBOTS_KEY);
+		m_IsReadingChunkedEnabled  = i_Params.containsKey(CHECK_BOX_SHOULD_USE_CHUNKED);
 		m_Parsers = new Parser[Integer.parseInt(configParams.get("maxAnalyzers"))];
 		m_Downloaders = new Downloader[Integer.parseInt(configParams.get("maxDownloaders"))];
 		m_OpenPorts = new ArrayList<Integer>();
@@ -221,5 +223,9 @@ public class Crawler {
 				// All good with this one, they will get it
 			}
 		}
+	}
+	
+	public static boolean IsChunkedEnabled() {
+		return m_IsReadingChunkedEnabled;
 	}
 }
