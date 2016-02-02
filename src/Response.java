@@ -14,13 +14,13 @@ public class Response {
 		m_Content = i_Content;
 		m_ContentLength = i_Content.length();
 		m_ContentType = determineContentType(i_ContentType);
-		findExtension();
+		m_Extension = FindExtension(m_Url);
 	}
 	
-	public void findExtension() {
-		int i = m_Url.lastIndexOf('.');
-		int substringTo = m_Url.contains("?") ? m_Url.indexOf("?") : m_Url.length();
-		m_Extension = m_Url.substring(i + 1, substringTo);
+	public static String FindExtension(String i_Url) {
+		int i = i_Url.lastIndexOf('.');
+		//int substringTo = i_Url.contains("?") ? i_Url.indexOf("?") : i_Url.length();
+		return i_Url.substring(i + 1, i_Url.length());
 	}
 
 	public Response(String i_Url, String i_Content, int i_ContentLength, String i_ContentType) {
@@ -28,7 +28,7 @@ public class Response {
 		m_Content = i_Content;
 		m_ContentLength = i_ContentLength;
 		m_ContentType = determineContentType(i_ContentType);
-		findExtension();
+		m_Extension = FindExtension(m_Url);
 	}
 
 	private eLinkType determineContentType(String i_ContentType) {
@@ -62,7 +62,7 @@ public class Response {
 			return null;
 		}
 		String[] headersAndContent = i_FullResponse.split("\r\n\r\n");
-		HashMap<String, String> headers = HttpGetRequest.createResponseHeaders(headersAndContent[0].split("\r\n"));
+		HashMap<String, String> headers = HttpCrawlerRequest.createResponseHeaders(headersAndContent[0].split("\r\n"));
 		int contentLength = headers.containsKey("content-length") ? Integer.parseInt(headers.get("content-length")) : headersAndContent[1].length();
 		String contentType = headers.get("content-type");
 		

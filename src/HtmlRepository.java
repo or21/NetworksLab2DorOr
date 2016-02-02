@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -190,12 +191,7 @@ public class HtmlRepository {
 		response.append("Number of external links is: ").append(numOfExternalLinks).append("<br>");
 		
 		if (i_TCPPortScanEnabled) {
-			response.append("The opened ports are: ");
-
-			for (Integer port : i_OpenPorts) {
-				response.append(port + ",");
-			}
-			response.append("<br>");
+			response.append("The opened ports are: ").append(Arrays.toString(i_OpenPorts.toArray()).replace("[", "").replace("]", "")).append("<br>");
 		}
 		
 		response.append("Average RTT in milliseconds is: ").append(HtmlRepository.GetInstance().AverageRtt()).append("<br>");
@@ -219,5 +215,9 @@ public class HtmlRepository {
 	
 	public long AverageRtt() {
 		return m_SumOfRtt / m_NumOfHttpRequestsSent;
+	}
+	
+	public boolean IsHtml(String i_Extension) {
+		return !m_ImagesTypes.contains(i_Extension) && !m_VideosTypes.contains(i_Extension) && !m_VideosTypes.contains(i_Extension);
 	}
 }

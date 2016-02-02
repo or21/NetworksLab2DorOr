@@ -21,7 +21,7 @@ public class Downloader extends Thread {
 				}
 			}
 			System.out.println("Downloader starts downloading URL " + url);
-			HttpGetRequest request = new HttpGetRequest(HtmlRepository.GetInstance().Host, url);
+			HttpCrawlerRequest request = new HttpCrawlerRequest(HtmlRepository.GetInstance().Host, url);
 			String fullResponse = null;
 			try {
 				fullResponse = request.sendRequestReceiveResponse();

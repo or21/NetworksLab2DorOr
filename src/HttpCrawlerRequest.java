@@ -9,22 +9,23 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class HttpGetRequest {
+public class HttpCrawlerRequest {
 
 	private String m_Host;
 	private String m_RequestPage;
 	private int m_NumberOfRedirects = 0;
-	private int MAX_NUMBER_OF_REDIRECTS = 7;
+	private int MAX_NUMBER_OF_REDIRECTS = 3;
+	private boolean isHtml;
 	
 	private long m_StartingHttpRequestTime;
 	
-	public HttpGetRequest(String i_Host, String i_RequestPage) {
+	public HttpCrawlerRequest(String i_Host, String i_RequestPage) {
 		m_Host = i_Host;
 		m_RequestPage = i_RequestPage;
 		m_NumberOfRedirects = 0;
 	}
 	
-	public HttpGetRequest(String i_Host, String i_RequestPage, int i_NumberOfRedirects) {
+	public HttpCrawlerRequest(String i_Host, String i_RequestPage, int i_NumberOfRedirects) {
 		this(i_Host, i_RequestPage);
 		m_NumberOfRedirects = i_NumberOfRedirects;
 	}
@@ -38,8 +39,11 @@ public class HttpGetRequest {
 		if (m_RequestPage.contains(m_Host)) {
 			m_RequestPage = m_RequestPage.substring(m_RequestPage.lastIndexOf(m_Host) + m_Host.length());
 		}
-
-		out.println("GET " + m_RequestPage + (Crawler.IsChunkedEnabled() ? " HTTP/1.1" : " HTTP/1.0"));
+		
+		String extension = Response.FindExtension(m_RequestPage);
+		isHtml = HtmlRepository.GetInstance().IsHtml(extension);
+		
+		out.println((isHtml ? "GET " : "HEAD ") + m_RequestPage + (Crawler.IsChunkedEnabled() ? " HTTP/1.1" : " HTTP/1.0"));
 		out.println("Host:" + m_Host);
 		out.println(); 
 		out.flush();
@@ -51,7 +55,6 @@ public class HttpGetRequest {
 		sendRequest(socket);
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		
 		
 		StringBuilder responseAsString = new StringBuilder();
 		String line;
@@ -72,7 +75,11 @@ public class HttpGetRequest {
 			boolean isChunked = headers.containsKey("transfer-encoding") && 
 					headers.get("transfer-encoding").equals("chunked");
 			responseAsString.append("\r\n");
-			if(isChunked) {
+			if (!isHtml)
+			{
+				return responseAsString.toString();
+			}
+			if (isChunked) {
 				readResponseAsChunked(reader, line, responseAsString);
 			} else {
 				while((line = reader.readLine()) != null) {
@@ -88,16 +95,16 @@ public class HttpGetRequest {
 			}
 			if (headers.get("response_code").contains("301")) {	
 				if (headers.get("location").contains(m_Host)) {
-					return new HttpGetRequest(m_Host, headers.get("location").substring(headers.get("location").lastIndexOf(m_Host + "/") + m_Host.length()), m_NumberOfRedirects + 1).sendRequestReceiveResponse();
+					return new HttpCrawlerRequest(m_Host, headers.get("location").substring(headers.get("location").lastIndexOf(m_Host + "/") + m_Host.length()), m_NumberOfRedirects + 1).sendRequestReceiveResponse();
 				} else {
-					return new HttpGetRequest(m_Host, headers.get("location"), m_NumberOfRedirects + 1).sendRequestReceiveResponse();
+					return new HttpCrawlerRequest(m_Host, headers.get("location"), m_NumberOfRedirects + 1).sendRequestReceiveResponse();
 				}
 			} else if (headers.get("response_code").contains("302")) {
 				String newHost = headers.get("location");
 				Pattern pattern = Pattern.compile("(https?://)([^:^/]*)(:\\d*)?(.*)?");
 				Matcher matcher = pattern.matcher(newHost);
 				if(matcher.find()) {
-					return new HttpGetRequest(matcher.group(2), "/" + matcher.group(4), m_NumberOfRedirects + 1).sendRequestReceiveResponse();
+					return new HttpCrawlerRequest(matcher.group(2), "/" + matcher.group(4), m_NumberOfRedirects + 1).sendRequestReceiveResponse();
 				}
 			} 
 		}
