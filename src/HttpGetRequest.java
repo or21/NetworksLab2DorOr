@@ -69,13 +69,11 @@ public class HttpGetRequest {
 				}
 			}
 			reader.close();
-			socket.close();
 			return responseAsString.toString();
 		} else  {
 			reader.close();
-			socket.close();
 			if (headers.containsKey("location") && headers.get("location").equals(m_PrevRequestPage)) {
-				return null;
+				return null; // 
 			}
 			if (headers.get("response_code").contains("301")) {	
 				return new HttpGetRequest(m_Host, headers.get("location").substring(headers.get("location").lastIndexOf(m_Host + "/") + m_Host.length()), headers.get("location")).sendRequestReceiveResponse();
@@ -87,7 +85,7 @@ public class HttpGetRequest {
 					return new HttpGetRequest(matcher.group(2), "/" + matcher.group(4), headers.get("location")).sendRequestReceiveResponse();
 				}
 			} else {
-				System.out.println(headers.get("response_code"));
+				System.out.println("Not redirect: " + headers);
 			}
 		}
 		return null;
