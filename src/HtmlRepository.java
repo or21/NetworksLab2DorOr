@@ -40,9 +40,9 @@ public class HtmlRepository {
 	
 	private ArrayList<String> getTypesFromConfig(String i_TypesAsString) {
 		ArrayList<String> typesToReturn = new ArrayList<String>();
-		String[] typesAsArray = i_TypesAsString.trim().split(",");
+		String[] typesAsArray = i_TypesAsString.split(",");
 		for (String type : typesAsArray) {
-			typesToReturn.add(type);
+			typesToReturn.add(type.trim());
 		}
 		
 		return typesToReturn;
