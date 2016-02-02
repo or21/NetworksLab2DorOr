@@ -15,7 +15,9 @@ public class HttpGetRequest {
 	private String m_RequestPage;
 	private int m_NumberOfRedirects = 0;
 	private int MAX_NUMBER_OF_REDIRECTS = 7;
-
+	
+	private long m_StartingHttpRequestTime;
+	
 	public HttpGetRequest(String i_Host, String i_RequestPage) {
 		m_Host = i_Host;
 		m_RequestPage = i_RequestPage;
@@ -28,6 +30,7 @@ public class HttpGetRequest {
 	}
 	
 	private void sendRequest(Socket i_Socket) throws IOException {
+		m_StartingHttpRequestTime = System.currentTimeMillis();
 		PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(i_Socket.getOutputStream()))); 
 		if (m_RequestPage.startsWith("//")) {
 			m_RequestPage = m_RequestPage.substring(1);
@@ -35,7 +38,7 @@ public class HttpGetRequest {
 		if (m_RequestPage.contains(m_Host)) {
 			m_RequestPage = m_RequestPage.substring(m_RequestPage.lastIndexOf(m_Host) + m_Host.length());
 		}
-
+		
 		out.println("GET " + m_RequestPage + " HTTP/1.0");
 		out.println("Host:" + m_Host);
 		out.println(); 
@@ -48,9 +51,17 @@ public class HttpGetRequest {
 		sendRequest(socket);
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		
+		
 		StringBuilder responseAsString = new StringBuilder();
 		String line;
+		boolean measureEndTime = true;
 		while (!(line = reader.readLine()).equals("")) {
+			if (measureEndTime) {
+				HtmlRepository.GetInstance().UpdateAverageRtt(System.currentTimeMillis() - m_StartingHttpRequestTime);
+				measureEndTime = false;
+			}
+			
 			responseAsString.append(line + "\r\n");
 		}
 
