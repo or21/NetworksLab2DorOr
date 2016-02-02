@@ -61,6 +61,10 @@ public class HtmlRepository {
 		return m_Instance;
 	}
 
+	public HashSet<String> GetDisallowedUrls() {
+		return m_DisallowedUrls;
+	}
+	
 	public boolean IsReadyForDiagnostics() {
 		synchronized(RESPONSES_LOCK_OBJECT) {
 			synchronized(URLS_LOCK_OBJECT) {
@@ -114,9 +118,9 @@ public class HtmlRepository {
 		for(String line : lines) {
 			String[] ruleResultPair = line.split(": ");
 			if (ruleResultPair[0].toLowerCase().equals("allow")) {
-				m_AllowedUrls.add(ruleResultPair[1]);
+				m_AllowedUrls.add(ruleResultPair[1].trim());
 			} else if (ruleResultPair[0].toLowerCase().equals("disallow")) {
-				m_DisallowedUrls.add(ruleResultPair[1]);
+				m_DisallowedUrls.add(ruleResultPair[1].trim());
 			}
 		}
 	}
@@ -191,5 +195,9 @@ public class HtmlRepository {
 		response.append("</body></html>");
 
 		return response.toString();
+	}
+	
+	public void Dispose() {
+		m_Instance = null;
 	}
 }

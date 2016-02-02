@@ -65,7 +65,7 @@ public class Crawler {
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
 		String filename = "static/html/crawler_results/" + m_HtmlRepository.Host + "_" + dateFormat.format(new Date()) + ".html";
 		m_HtmlRepository.AddUrl("/robots.txt");
-		Downloader robotsRequest = new Downloader(null);
+		Downloader robotsRequest = new Downloader(null, m_IgnoreRobotsEnabled);
 		robotsRequest.start();
 		
 		try {
@@ -75,7 +75,7 @@ public class Crawler {
 		}
 		
 		m_HtmlRepository.AddUrl("/");
-		Downloader request = new Downloader(onAddedResponse);
+		Downloader request = new Downloader(onAddedResponse, m_IgnoreRobotsEnabled);
 		request.start();
 		
 		try {
@@ -123,7 +123,8 @@ public class Crawler {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
+		}
+		HtmlRepository.GetInstance().Dispose();
 		return filename;
 	}
 
@@ -175,11 +176,11 @@ public class Crawler {
 	public void UpdateNewDownloader() {
 		for(int i = 0; i < m_Downloaders.length; i++) {
 			if (m_Downloaders[i] == null ) {
-				m_Downloaders[i] = new Downloader(onAddedResponse);
+				m_Downloaders[i] = new Downloader(onAddedResponse, m_IgnoreRobotsEnabled);
 				m_Downloaders[i].start();
 				break;
 			} else if (!m_Downloaders[i].isAlive()) {
-				m_Downloaders[i] = new Downloader(onAddedResponse);
+				m_Downloaders[i] = new Downloader(onAddedResponse, m_IgnoreRobotsEnabled);
 				m_Downloaders[i].start();
 				break;
 			} else {
