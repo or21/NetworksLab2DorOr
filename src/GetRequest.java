@@ -42,34 +42,39 @@ public class GetRequest extends HeadRequest {
 	 */
 	@Override
 	public void ReturnResponse() throws IOException {
-		OutputStream outputStream = m_Socket.getOutputStream();
-		File fileToReturn;
-		fileToReturn = openFileAccordingToUrl(m_Url);
-		if (!fileToReturn.exists()) {
-			ReturnNotFoundResponse();
-		} 
-		// Create chunk response
-		else if (m_ShouldSendChunked) {
-			m_Headers = Tools.SetupChunkedResponseHeaders(m_Type);
-			StringBuilder responseString = new StringBuilder(createHeaders());
-			responseString.append(CRLF);
-			writeChunked(new DataOutputStream(outputStream), responseString.toString().getBytes(), fileToReturn);
-		} else {
-			// Create and send regular response
-			m_Content = Tools.ReadFile(fileToReturn);
-			m_Headers = Tools.SetupResponseHeaders(m_Content, m_Type);
-			StringBuilder responseString = new StringBuilder(createHeaders());
+		if (m_Url.startsWith("/crawler_results") && !m_RequestHeaders.containsKey("Referer")) {
+			ReturnForbiddenResponse();
+		}
+		else {
+			OutputStream outputStream = m_Socket.getOutputStream();
+			File fileToReturn;
+			fileToReturn = openFileAccordingToUrl(m_Url);
+			if (!fileToReturn.exists()) {
+				ReturnNotFoundResponse();
+			} 
+			// Create chunk response
+			else if (m_ShouldSendChunked) {
+				m_Headers = Tools.SetupChunkedResponseHeaders(m_Type);
+				StringBuilder responseString = new StringBuilder(createHeaders());
+				responseString.append(CRLF);
+				writeChunked(new DataOutputStream(outputStream), responseString.toString().getBytes(), fileToReturn);
+			} else {
+				// Create and send regular response
+				m_Content = Tools.ReadFile(fileToReturn);
+				m_Headers = Tools.SetupResponseHeaders(m_Content, m_Type);
+				StringBuilder responseString = new StringBuilder(createHeaders());
 
-			System.out.println(responseString);
-			responseString.append(CRLF);
+				System.out.println(responseString);
+				responseString.append(CRLF);
 
-			try {
-				outputStream.write(responseString.toString().getBytes());
-				outputStream.write(m_Content);
-				outputStream.flush();
-				outputStream.close();
-			} catch (IOException e) {
-				System.out.println("No socket to write the respone to.");
+				try {
+					outputStream.write(responseString.toString().getBytes());
+					outputStream.write(m_Content);
+					outputStream.flush();
+					outputStream.close();
+				} catch (IOException e) {
+					System.out.println("No socket to write the respone to.");
+				}
 			}
 		}
 	}
@@ -80,17 +85,17 @@ public class GetRequest extends HeadRequest {
 	private void writeChunked(DataOutputStream i_OutputStream, byte[] i_HeadersData, File i_FileToReturn) throws NumberFormatException, IOException {
 		int amountOfDataRead;
 		byte[] dataToSend = new byte[m_ChunkSize];
-		
+
 		System.out.println(new String(i_HeadersData));
 		i_OutputStream.write(i_HeadersData);
 		FileInputStream fis = new FileInputStream(i_FileToReturn);
-		
+
 		// Read and build each chunk according to chunkSize
 		while ((amountOfDataRead = fis.read(dataToSend, 0, m_ChunkSize)) != -1) {
-				sendChunk(i_OutputStream, dataToSend, amountOfDataRead);
-				dataToSend = new byte[m_ChunkSize];
+			sendChunk(i_OutputStream, dataToSend, amountOfDataRead);
+			dataToSend = new byte[m_ChunkSize];
 		}
-		
+
 		// Finish the file - send 0 to let the client know.
 		// System.out.println((Integer.toHexString(0) + CRLF));
 		i_OutputStream.write((Integer.toHexString(0) + CRLF).getBytes());
@@ -111,5 +116,9 @@ public class GetRequest extends HeadRequest {
 		i_OutputStream.write(i_Data, 0, i_AmountOfDataToWrite);
 		i_OutputStream.write(m_CRLFInByteArray);
 		i_OutputStream.flush();
+	}
+
+	protected void ReturnForbiddenResponse() throws IOException {
+		new ErrorRequest(RequestFactory.m_ForbiddenRequestPath, RequestFactory.m_ForbiddenRequestHeader, m_Socket).ReturnResponse();
 	}
 }

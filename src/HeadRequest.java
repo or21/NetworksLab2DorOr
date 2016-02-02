@@ -35,13 +35,14 @@ public class HeadRequest implements IClientRequest {
 	protected String m_DefaultFromClient = "/";
 	protected String m_Extension;
 	protected Socket m_Socket;
+	protected HashMap<String, String> m_RequestHeaders;
 
 	/*
 	 * Constructor.
 	 */
 	public HeadRequest(String[] i_FirstHeaderRow, HashMap<String, String> requestHeaders, Socket i_Socket) {
 		this.m_Socket = i_Socket;
-		
+		m_RequestHeaders = requestHeaders;
 
 		m_Url = i_FirstHeaderRow[1].replace("..", "");
 		m_Url = m_Url.replaceAll("[/]+", "/");
