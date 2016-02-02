@@ -11,9 +11,9 @@ public class HtmlRepository {
 
 	private HashSet<String> m_DisallowedUrls;
 	private HashSet<String> m_AllowedUrls;
-	
+
 	private HashMap<String, Response> m_ExistingResponses;
-	
+
 	private ArrayList<String> m_ImagesTypes;
 	private ArrayList<String> m_VideosTypes;
 	private ArrayList<String> m_DocsTypes;
@@ -31,7 +31,7 @@ public class HtmlRepository {
 		m_DisallowedUrls = new HashSet<>();
 		m_AllowedUrls = new HashSet<>();
 		m_ExternalLinks = new ArrayList<>();
-		
+
 		m_ImagesTypes = new ArrayList<String>(Arrays.asList("bmp", "jpg", "png", "gif", "ico")); // change to config
 		m_VideosTypes = new ArrayList<String>(Arrays.asList("avi", "mpg", "mp4", "wmv", "mov", "flv", "swf", "mkv")); // change to config
 		m_DocsTypes  = new ArrayList<String>(Arrays.asList("pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx")); // change to config
@@ -72,6 +72,7 @@ public class HtmlRepository {
 		synchronized (RESPONSES_LOCK_OBJECT) {
 			if (m_PendingResponsesToParse.size() != 0) {
 				responseToParse = m_PendingResponsesToParse.remove(0);
+				System.out.println(m_PendingResponsesToParse.size() + " responses left");
 			}
 		}
 
@@ -90,12 +91,13 @@ public class HtmlRepository {
 		synchronized (URLS_LOCK_OBJECT) {
 			if (m_PendingUrlsToDownload.size() != 0) {
 				urlToParse = m_PendingUrlsToDownload.remove(0);
+				System.out.println(m_PendingUrlsToDownload.size() + " urls left");
 			}
 		}
 
 		return urlToParse;
 	}
-	
+
 	public void ParseRobotsContent(String i_RobotsContent) {
 		String[] lines = i_RobotsContent.split("\r\n");
 		for(String line : lines) {
@@ -106,7 +108,6 @@ public class HtmlRepository {
 				m_DisallowedUrls.add(ruleResultPair[1]);
 			}
 		}
-		System.out.println("Robots: " + i_RobotsContent);
 	}
 
 	public void AddExternalLink(String i_LinkToAdd) {
@@ -116,8 +117,8 @@ public class HtmlRepository {
 			}
 		}
 	}
-	
-	public String CreateStatistics() {
+
+	public String CreateStatistics(boolean i_IgnoreRobotsEnabled, boolean i_TCPPortScanEnabled, ArrayList<Integer> i_OpenPorts) {
 		int numberOfImages = 0;
 		int totalImagesSize = 0;
 		int numberOfVideos = 0;
@@ -133,7 +134,7 @@ public class HtmlRepository {
 			if (response == null) {
 				continue;
 			}
-			
+
 			String extension = response.GetExtension();
 			int contentLength = response.GetContentLength();
 			if (m_ImagesTypes.contains(extension)) {
@@ -153,8 +154,9 @@ public class HtmlRepository {
 				totalPagesSize += contentLength;
 			}
 		}
-		
+
 		StringBuilder response = new StringBuilder();
+		response.append("Crawler respected robots.txt: ").append(!i_IgnoreRobotsEnabled).append("\n");
 		response.append("Number of images is: ").append(numberOfImages).append("\n");
 		response.append("Total size (in bytes) of images is: ").append(totalImagesSize).append("\n");
 		response.append("Number of videos is: ").append(numberOfVideos).append("\n");
@@ -166,6 +168,15 @@ public class HtmlRepository {
 		response.append("Number of internal links is: ").append(numOfInternalLinks).append("\n");
 		response.append("Number of external links is: ").append(numOfExternalLinks).append("\n");
 		
+		if (i_TCPPortScanEnabled) {
+			response.append("The opened ports are: ");
+
+			for (Integer port : i_OpenPorts) {
+				response.append(port + ",");
+			}
+			response.append("\n");
+		}
+
 		return response.toString();
 	}
 }

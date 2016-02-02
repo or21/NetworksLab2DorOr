@@ -35,7 +35,6 @@ public class HttpGetRequest {
 		if (m_RequestPage.contains(m_Host)) {
 			m_RequestPage = m_RequestPage.substring(m_RequestPage.lastIndexOf(m_Host) + m_Host.length());
 		}
-		System.out.println("URL TO SEARCH: " + m_RequestPage);
 
 		out.println("GET " + m_RequestPage + " HTTP/1.0");
 		out.println("Host:" + m_Host);
@@ -89,9 +88,7 @@ public class HttpGetRequest {
 				if(matcher.find()) {
 					return new HttpGetRequest(matcher.group(2), "/" + matcher.group(4), m_NumberOfRedirects + 1).sendRequestReceiveResponse();
 				}
-			} else {
-				System.out.println("Not redirect: " + headers);
-			}
+			} 
 		}
 		return null;
 	}

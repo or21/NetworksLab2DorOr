@@ -45,6 +45,8 @@ public class Crawler {
 		m_IgnoreRobotsEnabled = i_Params.containsKey(CHECK_BOX_IGNORE_ROBOTS_KEY);
 		m_Parsers = new Parser[2]; // TODO: Use configfile
 		m_Downloaders = new Downloader[10]; // TODO: Use configfile
+		m_OpenPorts = new ArrayList<Integer>();
+		
 		if (m_TCPPortScanEnabled) {
 			m_OpenPorts = new ArrayList<>();
 		}
@@ -91,11 +93,14 @@ public class Crawler {
 				}
 			}
 		}
-		System.out.println("We finished parsing through everything! :)");
+		
 		if (m_TCPPortScanEnabled) {
 			performPortScan();
 		}
-		System.out.println(HtmlRepository.GetInstance().CreateStatistics());
+		
+		System.out.println("We finished parsing through everything! :)");
+		System.out.println(HtmlRepository.GetInstance().CreateStatistics(m_IgnoreRobotsEnabled, m_TCPPortScanEnabled, m_OpenPorts));
+		
 		return filename;
 	}
 
