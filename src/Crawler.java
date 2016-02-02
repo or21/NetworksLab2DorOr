@@ -149,7 +149,7 @@ public class Crawler {
 			while ((line = br.readLine()) != null) {
 				pw.println(line);
 				if (line.contains("Older crawled files")) {
-					pw.println("<a href=\"" + "/crawler_results/" + i_FileToAdd + "\">" + i_FileToAdd +"</a>" + "<br>");
+					pw.println("<a href=\"" + "/crawler_results/" + i_FileToAdd + "\">" + i_FileToAdd.replace("_", "-").replace(".html", "") +"</a>" + "<br>");
 				}
 			}
 			br.close();
