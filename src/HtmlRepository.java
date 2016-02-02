@@ -167,17 +167,18 @@ public class HtmlRepository {
 		}
 
 		StringBuilder response = new StringBuilder();
-		response.append("Crawler respected robots.txt: ").append(!i_IgnoreRobotsEnabled).append("\n");
-		response.append("Number of images is: ").append(numberOfImages).append("\n");
-		response.append("Total size (in bytes) of images is: ").append(totalImagesSize).append("\n");
-		response.append("Number of videos is: ").append(numberOfVideos).append("\n");
-		response.append("Total size (in bytes) of videos is: ").append(totalVideosSize).append("\n");
-		response.append("Number of documents is: ").append(numberOfDocs).append("\n");
-		response.append("Total size (in bytes) of documents is: ").append(totalDocsSize).append("\n");
-		response.append("Number of pages (all detected files excluding images, videos and documents): ").append(numberOfPages).append("\n");
-		response.append("Total size (in bytes) of pages is: ").append(totalPagesSize).append("\n");
-		response.append("Number of internal links is: ").append(numOfInternalLinks).append("\n");
-		response.append("Number of external links is: ").append(numOfExternalLinks).append("\n");
+		response.append("<html><head><title>Your results are here!</title></head><body>");
+		response.append("Crawler respected robots.txt: ").append(!i_IgnoreRobotsEnabled).append("<br>");
+		response.append("Number of images is: ").append(numberOfImages).append("<br>");
+		response.append("Total size (in bytes) of images is: ").append(totalImagesSize).append("<br>");
+		response.append("Number of videos is: ").append(numberOfVideos).append("<br>");
+		response.append("Total size (in bytes) of videos is: ").append(totalVideosSize).append("<br>");
+		response.append("Number of documents is: ").append(numberOfDocs).append("<br>");
+		response.append("Total size (in bytes) of documents is: ").append(totalDocsSize).append("<br>");
+		response.append("Number of pages (all detected files excluding images, videos and documents): ").append(numberOfPages).append("<br>");
+		response.append("Total size (in bytes) of pages is: ").append(totalPagesSize).append("<br>");
+		response.append("Number of internal links is: ").append(numOfInternalLinks).append("<br>");
+		response.append("Number of external links is: ").append(numOfExternalLinks).append("<br>");
 		
 		if (i_TCPPortScanEnabled) {
 			response.append("The opened ports are: ");
@@ -185,8 +186,9 @@ public class HtmlRepository {
 			for (Integer port : i_OpenPorts) {
 				response.append(port + ",");
 			}
-			response.append("\n");
+			response.append("<br>");
 		}
+		response.append("</body></html>");
 
 		return response.toString();
 	}
