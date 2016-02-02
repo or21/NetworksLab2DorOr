@@ -125,9 +125,13 @@ public class HtmlRepository {
 		int numOfInternalLinks = m_ExistingResponses.size();
 		int numOfExternalLinks = m_ExternalLinks.size();
 		for (String existingKey : m_ExistingResponses.keySet()) {
-			Response values = m_ExistingResponses.get(existingKey);
-			String extension = values.GetExtension();
-			int contentLength = values.GetContentLength();
+			Response response = m_ExistingResponses.get(existingKey);
+			if (response == null) {
+				continue;
+			}
+			
+			String extension = response.GetExtension();
+			int contentLength = response.GetContentLength();
 			if (m_ImagesTypes.contains(extension)) {
 				numberOfImages++;
 				totalImagesSize += contentLength;
@@ -159,6 +163,5 @@ public class HtmlRepository {
 		response.append("Number of external links is: ").append(numOfExternalLinks).append("\n");
 		
 		return response.toString();
-		
 	}
 }

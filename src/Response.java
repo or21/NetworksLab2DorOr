@@ -17,7 +17,7 @@ public class Response {
 		findExtension();
 	}
 	
-	private void findExtension() {
+	public void findExtension() {
 		int i = m_Url.lastIndexOf('.');
 		int substringTo = m_Url.contains("?") ? m_Url.indexOf("?") : m_Url.length();
 		m_Extension = m_Url.substring(i + 1, substringTo);
@@ -28,6 +28,7 @@ public class Response {
 		m_Content = i_Content;
 		m_ContentLength = i_ContentLength;
 		m_ContentType = determineContentType(i_ContentType);
+		findExtension();
 	}
 
 	private eLinkType determineContentType(String i_ContentType) {
