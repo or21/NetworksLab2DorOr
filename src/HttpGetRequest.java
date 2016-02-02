@@ -13,17 +13,18 @@ public class HttpGetRequest {
 
 	private String m_Host;
 	private String m_RequestPage;
-	private String m_PrevRequestPage;
+	private int m_NumberOfRedirects = 0;
+	private int MAX_NUMBER_OF_REDIRECTS = 7;
 
 	public HttpGetRequest(String i_Host, String i_RequestPage) {
 		m_Host = i_Host;
 		m_RequestPage = i_RequestPage;
-		m_PrevRequestPage = "";
+		m_NumberOfRedirects = 0;
 	}
 	
-	public HttpGetRequest(String i_Host, String i_RequestPage, String i_PrevRequestPage) {
+	public HttpGetRequest(String i_Host, String i_RequestPage, int i_NumberOfRedirects) {
 		this(i_Host, i_RequestPage);
-		m_PrevRequestPage = i_PrevRequestPage;
+		m_NumberOfRedirects = i_NumberOfRedirects;
 	}
 	
 	private void sendRequest(Socket i_Socket) throws IOException {
@@ -72,21 +73,21 @@ public class HttpGetRequest {
 			return responseAsString.toString();
 		} else  {
 			reader.close();
-			if (headers.containsKey("location") && headers.get("location").equals(m_PrevRequestPage)) {
+			if (m_NumberOfRedirects == MAX_NUMBER_OF_REDIRECTS ){
 				return null; // 
 			}
 			if (headers.get("response_code").contains("301")) {	
 				if (headers.get("location").contains(m_Host)) {
-					return new HttpGetRequest(m_Host, headers.get("location").substring(headers.get("location").lastIndexOf(m_Host + "/") + m_Host.length()), headers.get("location")).sendRequestReceiveResponse();
+					return new HttpGetRequest(m_Host, headers.get("location").substring(headers.get("location").lastIndexOf(m_Host + "/") + m_Host.length()), m_NumberOfRedirects + 1).sendRequestReceiveResponse();
 				} else {
-					return new HttpGetRequest(m_Host, headers.get("location"), headers.get("location")).sendRequestReceiveResponse();
+					return new HttpGetRequest(m_Host, headers.get("location"), m_NumberOfRedirects + 1).sendRequestReceiveResponse();
 				}
 			} else if (headers.get("response_code").contains("302")) {
 				String newHost = headers.get("location");
 				Pattern pattern = Pattern.compile("(https?://)([^:^/]*)(:\\d*)?(.*)?");
 				Matcher matcher = pattern.matcher(newHost);
 				if(matcher.find()) {
-					return new HttpGetRequest(matcher.group(2), "/" + matcher.group(4), headers.get("location")).sendRequestReceiveResponse();
+					return new HttpGetRequest(matcher.group(2), "/" + matcher.group(4), m_NumberOfRedirects + 1).sendRequestReceiveResponse();
 				}
 			} else {
 				System.out.println("Not redirect: " + headers);
