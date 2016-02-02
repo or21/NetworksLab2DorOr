@@ -1,6 +1,14 @@
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 public class Crawler {
@@ -54,7 +62,8 @@ public class Crawler {
 	}
 
 	public String Run() {
-		String filename = "Statistics results " + System.currentTimeMillis();
+		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
+		String filename = "static/html/crawler_results/" + m_HtmlRepository.Host + "_" + dateFormat.format(new Date()) + ".html";
 		m_HtmlRepository.AddUrl("/robots.txt");
 		Downloader robotsRequest = new Downloader(null);
 		robotsRequest.start();
@@ -101,10 +110,20 @@ public class Crawler {
 		if (m_TCPPortScanEnabled) {
 			performPortScan();
 		}
-		
 		System.out.println("We finished parsing through everything! :)");
-		System.out.println(HtmlRepository.GetInstance().CreateStatistics(m_IgnoreRobotsEnabled, m_TCPPortScanEnabled, m_OpenPorts));
-		
+		String statistics = HtmlRepository.GetInstance().CreateStatistics(m_IgnoreRobotsEnabled, m_TCPPortScanEnabled, m_OpenPorts);
+		File result = new File(filename);
+		result.setWritable(true);
+		try {
+			result.createNewFile();
+			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename)));
+			writer.write(statistics);
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 		return filename;
 	}
 
