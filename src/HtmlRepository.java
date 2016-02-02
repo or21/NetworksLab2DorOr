@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -13,7 +12,7 @@ public class HtmlRepository {
 	private HashSet<String> m_AllowedUrls;
 
 	private HashMap<String, Response> m_ExistingResponses;
-
+	
 	private ArrayList<String> m_ImagesTypes;
 	private ArrayList<String> m_VideosTypes;
 	private ArrayList<String> m_DocsTypes;
@@ -25,16 +24,28 @@ public class HtmlRepository {
 	private static HtmlRepository m_Instance;
 
 	private HtmlRepository() {
+		HashMap<String, String> configParams = ConfigFile.GetInstance().GetConfigurationParameters();
+		
 		m_PendingResponsesToParse = new ArrayList<>();
 		m_PendingUrlsToDownload = new ArrayList<>();
 		m_ExistingResponses = new HashMap<>();
 		m_DisallowedUrls = new HashSet<>();
 		m_AllowedUrls = new HashSet<>();
 		m_ExternalLinks = new ArrayList<>();
-
-		m_ImagesTypes = new ArrayList<String>(Arrays.asList("bmp", "jpg", "png", "gif", "ico")); // change to config
-		m_VideosTypes = new ArrayList<String>(Arrays.asList("avi", "mpg", "mp4", "wmv", "mov", "flv", "swf", "mkv")); // change to config
-		m_DocsTypes  = new ArrayList<String>(Arrays.asList("pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx")); // change to config
+		
+		m_ImagesTypes = getTypesFromConfig(configParams.get("imageExtensions")); 
+		m_VideosTypes = getTypesFromConfig(configParams.get("videoExtensions")); 
+		m_DocsTypes = getTypesFromConfig(configParams.get("documentExtensions")); 
+	}
+	
+	private ArrayList<String> getTypesFromConfig(String i_TypesAsString) {
+		ArrayList<String> typesToReturn = new ArrayList<String>();
+		String[] typesAsArray = i_TypesAsString.trim().split(",");
+		for (String type : typesAsArray) {
+			typesToReturn.add(type);
+		}
+		
+		return typesToReturn;
 	}
 
 	public String Host; // Public property

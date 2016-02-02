@@ -23,7 +23,6 @@ public class Crawler {
 		public void run() {
 			UpdateNewParser();
 		}
-
 	};
 
 	private final Runnable onAddedUrl = new Runnable() {
@@ -32,19 +31,21 @@ public class Crawler {
 		public void run() {
 			UpdateNewDownloader();
 		}
-
 	};
 
 	public Crawler(HashMap<String, String> i_Params) throws IllegalArgumentException {
+		HashMap<String, String> configParams = ConfigFile.GetInstance().GetConfigurationParameters();
 		m_HtmlRepository = HtmlRepository.GetInstance();
 		m_HtmlRepository.Host = i_Params.get(TEXT_BOX_HOST_KEY);
+		
 		if (m_HtmlRepository.Host == null || m_HtmlRepository.Host.length() == 0) {
 			throw new IllegalArgumentException("Hostname not specified");
 		}
+		
 		m_TCPPortScanEnabled = i_Params.containsKey(CHECK_BOX_TCP_PORT_SCAN_KEY);
 		m_IgnoreRobotsEnabled = i_Params.containsKey(CHECK_BOX_IGNORE_ROBOTS_KEY);
-		m_Parsers = new Parser[2]; // TODO: Use configfile
-		m_Downloaders = new Downloader[10]; // TODO: Use configfile
+		m_Parsers = new Parser[Integer.parseInt(configParams.get("maxAnalyzers"))];
+		m_Downloaders = new Downloader[Integer.parseInt(configParams.get("maxDownloaders"))];
 		m_OpenPorts = new ArrayList<Integer>();
 		
 		if (m_TCPPortScanEnabled) {
@@ -57,14 +58,17 @@ public class Crawler {
 		m_HtmlRepository.AddUrl("/robots.txt");
 		Downloader robotsRequest = new Downloader(null);
 		robotsRequest.start();
+		
 		try {
 			robotsRequest.join();
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
+		
 		m_HtmlRepository.AddUrl("/");
 		Downloader request = new Downloader(onAddedResponse);
 		request.start();
+		
 		try {
 			request.join();
 		} catch (InterruptedException e1) {
@@ -122,11 +126,13 @@ public class Crawler {
 				return true;
 			}
 		}
+		
 		for(Downloader downloader : m_Downloaders) {
 			if (downloader != null && downloader.isAlive()) {
 				return true;
 			}
 		}
+		
 		return false;
 	}
 
