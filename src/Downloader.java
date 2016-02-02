@@ -1,7 +1,6 @@
 import java.io.IOException;
 
 public class Downloader extends Thread {
-
 	
 	private Runnable m_OnAddedResponseEvent;
 
@@ -13,6 +12,7 @@ public class Downloader extends Thread {
 	public void run() {
 		String url;
 		while ((url = HtmlRepository.GetInstance().GetUrl()) != null) {
+			System.out.println("Downloader starts downloading URL " + url);
 			HttpGetRequest request = new HttpGetRequest(HtmlRepository.GetInstance().Host, url);
 			String fullResponse = null;
 			try {
@@ -26,7 +26,8 @@ public class Downloader extends Thread {
 				// TODO: Remove from hashmap once basic flow works
 				continue;
 			}
-
+			
+			System.out.println("Downloader ends downloading the URL " + url);
 			if (url.equals("/robots.txt")) {
 				String[] robotsResponse = fullResponse.split("\r\n\r\n");
 				HtmlRepository.GetInstance().ParseRobotsContent(robotsResponse[robotsResponse.length - 1]);

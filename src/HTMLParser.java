@@ -8,6 +8,7 @@ public class HTMLParser {
 
 	private String m_HtmlOrVideoIdentifier = "<a ";
 	private String m_ImageIdentifier = "<img ";
+	private int m_NumberOfLinksFound = 0;
 
 	public HTMLParser() {
 		m_Urls = new ArrayList<>();
@@ -23,6 +24,7 @@ public class HTMLParser {
 			findAllRelevantData(line, m_ImageIdentifier);
 		}
 
+		System.out.println(m_NumberOfLinksFound + " links extracted from " + response.GetUrl());
 		return m_Urls;
 	}
 
@@ -36,8 +38,8 @@ public class HTMLParser {
 
 	private void filterAddress(String i_PageAddress, String i_LinkIdentifier) {
 		if (i_PageAddress.startsWith("/")) {
-			System.out.println("Parser: " + i_PageAddress);
 			m_Urls.add(i_PageAddress);
+			m_NumberOfLinksFound++;
 		}
 		else {
 			HtmlRepository.GetInstance().AddExternalLink(i_PageAddress);
