@@ -111,8 +111,9 @@ public class Crawler {
 	private void performPortScan() {
 		for (int port = 1; port <= 1024; port++) {
 			try {
+				System.out.println("Scanning port: " + port);
 				Socket socket = new Socket();
-				socket.connect(new InetSocketAddress(HtmlRepository.GetInstance().Host, port), 1000);
+				socket.connect(new InetSocketAddress(HtmlRepository.GetInstance().Host, port), 100);
 				socket.close();
 				m_OpenPorts.add(port);
 			} catch (Exception ex) {
