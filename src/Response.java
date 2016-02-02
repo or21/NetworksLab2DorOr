@@ -17,7 +17,7 @@ public class Response {
 		findExtension();
 	}
 	
-	private void findExtension() {
+	public void findExtension() {
 		int i = m_Url.lastIndexOf('.');
 		int substringTo = m_Url.contains("?") ? m_Url.indexOf("?") : m_Url.length();
 		m_Extension = m_Url.substring(i + 1, substringTo);

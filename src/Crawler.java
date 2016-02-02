@@ -14,14 +14,11 @@ public class Crawler {
 	private HtmlRepository m_HtmlRepository;
 	private Parser[] m_Parsers;
 	private Downloader[] m_Downloaders;
-
-	private String m_Host;
 	private boolean m_TCPPortScanEnabled = false;
 	private boolean m_IgnoreRobotsEnabled = false;
 	private ArrayList<Integer> m_OpenPorts;
 
 	private final Runnable onAddedResponse = new Runnable() {
-
 		@Override
 		public void run() {
 			UpdateNewParser();

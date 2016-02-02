@@ -133,6 +133,7 @@ public class HtmlRepository {
 			if (response == null) {
 				continue;
 			}
+			
 			String extension = response.GetExtension();
 			int contentLength = response.GetContentLength();
 			if (m_ImagesTypes.contains(extension)) {
@@ -166,6 +167,5 @@ public class HtmlRepository {
 		response.append("Number of external links is: ").append(numOfExternalLinks).append("\n");
 		
 		return response.toString();
-		
 	}
 }
