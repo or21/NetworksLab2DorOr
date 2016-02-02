@@ -33,7 +33,7 @@ public class PostRequest extends GetRequest {
 	 */
 	@Override
 	public void ReturnResponse() throws IOException {
-		if (!(m_Url.equals("/params_info.html") || m_Url.equals("/results.html"))) {
+		if (!(m_Url.equals("/params_info.html") || m_Url.equals("/execResults.html"))) {
 			super.ReturnResponse();
 		}
 		else {

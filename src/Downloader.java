@@ -1,17 +1,25 @@
 import java.io.IOException;
 
 public class Downloader extends Thread {
-	
-	private Runnable m_OnAddedResponseEvent;
 
-	public Downloader(Runnable i_OnAddedResponseEvent) {
+	private Runnable m_OnAddedResponseEvent;
+	private boolean m_IsIgnoringRobots;
+
+	public Downloader(Runnable i_OnAddedResponseEvent, boolean i_IsIgnoringRobotsTxt) {
 		m_OnAddedResponseEvent = i_OnAddedResponseEvent;
+		m_IsIgnoringRobots = i_IsIgnoringRobotsTxt;
 	}
 
 	@Override
 	public void run() {
 		String url;
 		while ((url = HtmlRepository.GetInstance().GetUrl()) != null) {
+			if (!m_IsIgnoringRobots) {
+				if (HtmlRepository.GetInstance().GetDisallowedUrls().contains(url)) {
+					System.out.println("Downloader: url is disallowed: " + url);
+					continue;
+				}
+			}
 			System.out.println("Downloader starts downloading URL " + url);
 			HttpGetRequest request = new HttpGetRequest(HtmlRepository.GetInstance().Host, url);
 			String fullResponse = null;
@@ -26,7 +34,7 @@ public class Downloader extends Thread {
 				// TODO: Remove from hashmap once basic flow works
 				continue;
 			}
-			
+
 			System.out.println("Downloader ends downloading the URL " + url);
 			if (url.equals("/robots.txt")) {
 				String[] robotsResponse = fullResponse.split("\r\n\r\n");
