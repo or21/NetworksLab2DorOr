@@ -20,6 +20,10 @@ public class HtmlRepository {
 	private final static Object RESPONSES_LOCK_OBJECT = new Object();
 	private final static Object URLS_LOCK_OBJECT = new Object();
 	private final static Object EXTERNALS_LOCK_OBJECT = new Object();
+	private final static Object AVERAGE_LOCK_OBJECT = new Object();
+	
+	private long m_SumOfRtt;
+	private long m_NumOfHttpRequestsSent;
 
 	private static HtmlRepository m_Instance;
 
@@ -194,6 +198,9 @@ public class HtmlRepository {
 			response.append("<br>");
 		}
 		
+		response.append("Average RTT in milliseconds is: ").append(HtmlRepository.GetInstance().AverageRtt()).append("<br>");
+		
+		response.append("<br>" + "Main page: ").append("<a href=\"/" + "\">" + "Home" +"</a>" + "<br>");
 		response.append("</body></html>");
 
 		return response.toString();
@@ -201,5 +208,16 @@ public class HtmlRepository {
 	
 	public void Dispose() {
 		m_Instance = null;
+	}
+	
+	public void UpdateAverageRtt(long i_Rtt) {
+		synchronized (AVERAGE_LOCK_OBJECT) {
+			m_NumOfHttpRequestsSent++;
+			m_SumOfRtt += i_Rtt;
+		}
+	}
+	
+	public long AverageRtt() {
+		return m_SumOfRtt / m_NumOfHttpRequestsSent;
 	}
 }
