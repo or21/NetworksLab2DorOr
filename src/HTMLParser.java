@@ -6,8 +6,8 @@ public class HTMLParser {
 
 	ArrayList<String> m_Urls;
 
-	private String m_HtmlOrVideoIdentifier = "<a ";
-	private String m_ImageIdentifier = "<img ";
+	private String m_HtmlOrVideoIdentifier = "<a href";
+	private String m_ImageIdentifier = "<img src";
 	private int m_NumberOfLinksFound = 0;
 
 	public HTMLParser() {
@@ -29,10 +29,12 @@ public class HTMLParser {
 	}
 
 	private void findAllRelevantData(String line, String i_ObjectToLookFor) {
-		Pattern pattern = Pattern.compile(i_ObjectToLookFor + "(.*)=('|\")(.*)('|\")>");
+		String[] identifiers = i_ObjectToLookFor.split(" ");
+		Pattern pattern = Pattern.compile(identifiers[0] + "\\s[^>]*?\\s*" + identifiers[1] + "=\\s*['\"]([^'\"]*?)['\"][^>]*?");
+		
 		Matcher matcher = pattern.matcher(line);
 		if (matcher.find()) {
-			filterAddress(matcher.group(3), i_ObjectToLookFor);
+			filterAddress(matcher.group(1), i_ObjectToLookFor);
 		}
 	}
 
