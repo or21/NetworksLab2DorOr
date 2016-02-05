@@ -39,6 +39,7 @@ public class HTMLParser {
 	}
 
 	private void filterAddress(String i_PageAddress, String i_LinkIdentifier) {
+		Pattern pattern = Pattern.compile("^(([^:\\/?#]+):)?(\\/\\/([^\\/?#]*))?([^?#]*)(?([^#]*))?(#(.*))?");
 		if (i_PageAddress.startsWith("/")) {
 			m_Urls.add(i_PageAddress);
 			m_NumberOfLinksFound++;

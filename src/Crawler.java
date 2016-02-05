@@ -81,6 +81,11 @@ public class Crawler {
 		}
 
 		m_HtmlRepository.AddUrl("/");
+		if (m_IgnoreRobotsEnabled) {
+			for (String disallowedUrl : m_HtmlRepository.GetDisallowedUrls()) {
+				m_HtmlRepository.AddUrl(disallowedUrl);
+			}
+		}
 		Downloader request = new Downloader(onAddedResponse, m_IgnoreRobotsEnabled);
 		request.start();
 
