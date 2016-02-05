@@ -16,7 +16,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 public class EmailService {
-	public static void SendEmail(String i_From, String i_Recipient, String i_Subject, String i_ResourceName) throws MessagingException {
+	public static void SendEmail(String i_From, String i_Recipient, String i_Subject, String i_ResourceName, String i_HostName) throws MessagingException {
 		String to = i_Recipient;
 
 		final String username = "lab02crawler";
@@ -42,7 +42,7 @@ public class EmailService {
 		message.setFrom(new InternetAddress(i_From));
 		message.setRecipients(Message.RecipientType.TO,
 				InternetAddress.parse(to));
-		message.setSubject("Crawler result for " + HtmlRepository.GetInstance().Host);
+		message.setSubject("Crawler result for " + i_HostName);
 		BodyPart messageBodyPart = new MimeBodyPart();
 		messageBodyPart.setText("Attached crawler run results");
 		Multipart multipart = new MimeMultipart();
@@ -50,7 +50,7 @@ public class EmailService {
 		messageBodyPart = new MimeBodyPart();
 		DataSource source = new FileDataSource(i_ResourceName);
 		messageBodyPart.setDataHandler(new DataHandler(source));
-		messageBodyPart.setFileName(HtmlRepository.GetInstance().Host);
+		messageBodyPart.setFileName(i_HostName + ".html");
 		multipart.addBodyPart(messageBodyPart);
 		message.setContent(multipart);
 		Transport.send(message);

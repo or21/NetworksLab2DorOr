@@ -169,7 +169,7 @@ public class Crawler {
 		HtmlRepository.GetInstance().Dispose();
 		if (m_ShouldSendEmail) {
 			try {
-				EmailService.SendEmail("Crawler", m_EmailAddress, "CrawlerResults", filename);
+				EmailService.SendEmail("Crawler", m_EmailAddress, "CrawlerResults", filename, m_HtmlRepository.Host);
 				System.out.println("Check your email for the results");
 			} catch (MessagingException me) {
 				System.out.println("WebCrawler: Email address is not valid, email was not sent");
