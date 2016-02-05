@@ -11,7 +11,7 @@ public class PostRequest extends GetRequest {
 	private final String CRAWLER_STARTED_SUCCESSFULLY = "static/html/crawler_started_successfully.html";
 	private final String CRAWLER_FAILED_BAD_HOSTNAME = "static/html/crawler_failed_bad_hostname.html";
 	private final String CRAWLER_FAILED_EMPTY_HOSTNAME = "static/html/crawler_failed_empty_hostname.html";
-	
+
 	/*
 	 * Constructor
 	 */
@@ -42,10 +42,12 @@ public class PostRequest extends GetRequest {
 		}
 		else {
 			OutputStream outputStream = m_Socket.getOutputStream();
+			
 			if (m_Url.equals("/params_info.html")){
 				StringBuilder content = new StringBuilder();
 				content.append("<html>\n<head><title>Params Info</title><link rel=\"shortcut icon\" href=\"/favicon.jpg\" type=\"image/jpg\"/></head>\n<body>");
 				content.append("<b>Params</b>: <br>");
+				
 				for (String key : m_Params.keySet()) {
 					content.append(key + ": " + m_Params.get(key) + "<br>");
 				}
@@ -75,6 +77,7 @@ public class PostRequest extends GetRequest {
 					} 
 				}
 			}
+			
 			m_Headers = m_ShouldSendChunked ? Tools.SetupChunkedResponseHeaders(m_Type) : Tools.SetupResponseHeaders(m_Content, m_Type);
 			StringBuilder responseString = new StringBuilder(createHeaders());
 			System.out.println(responseString);

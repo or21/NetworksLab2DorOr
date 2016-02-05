@@ -10,7 +10,7 @@ public class ErrorRequest implements IClientRequest {
 	private String m_FilePath;
 	private String m_Header;
 	private Socket m_Socket;
-	
+
 	/*
 	 * Constructor
 	 */
@@ -19,7 +19,7 @@ public class ErrorRequest implements IClientRequest {
 		m_Header = i_Header;
 		m_Socket = i_Socket;
 	}
-	
+
 	/*
 	 * Build the response for the received error
 	 */
@@ -28,16 +28,16 @@ public class ErrorRequest implements IClientRequest {
 		OutputStream outputStream = m_Socket.getOutputStream();
 		StringBuilder responseString = new StringBuilder();
 		responseString.append(m_Header);
-		
+
 		byte[] content = Tools.ReadFile(new File(m_FilePath));
 		HashMap<String, String> defaultHeaders = Tools.SetupResponseHeaders(content, m_Type);
 		for(String header : defaultHeaders.keySet()) {
 			responseString.append(header).append(": ").append(defaultHeaders.get(header)).append("\r\n");
 		}
-		
+
 		System.out.println(responseString);
 		responseString.append("\r\n");
-		
+
 		try {
 			outputStream.write(responseString.toString().getBytes());
 			outputStream.write(content);
@@ -47,5 +47,4 @@ public class ErrorRequest implements IClientRequest {
 			System.out.println("No socket to write the respone to.");
 		}
 	}
-
 }

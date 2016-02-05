@@ -1,1 +1,1 @@
-java -classpath ./bin MainServer
+java -cp ".;./jars/*;bin" MainServer

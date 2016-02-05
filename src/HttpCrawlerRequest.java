@@ -16,20 +16,20 @@ public class HttpCrawlerRequest {
 	private int m_NumberOfRedirects = 0;
 	private int MAX_NUMBER_OF_REDIRECTS = 3;
 	private boolean isHtml;
-	
+
 	private long m_StartingHttpRequestTime;
-	
+
 	public HttpCrawlerRequest(String i_Host, String i_RequestPage) {
 		m_Host = i_Host;
 		m_RequestPage = i_RequestPage;
 		m_NumberOfRedirects = 0;
 	}
-	
+
 	public HttpCrawlerRequest(String i_Host, String i_RequestPage, int i_NumberOfRedirects) {
 		this(i_Host, i_RequestPage);
 		m_NumberOfRedirects = i_NumberOfRedirects;
 	}
-	
+
 	private void sendRequest(Socket i_Socket) throws IOException {
 		m_StartingHttpRequestTime = System.currentTimeMillis();
 		PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(i_Socket.getOutputStream()))); 
@@ -39,10 +39,10 @@ public class HttpCrawlerRequest {
 		if (m_RequestPage.contains(m_Host)) {
 			m_RequestPage = m_RequestPage.substring(m_RequestPage.lastIndexOf(m_Host) + m_Host.length());
 		}
-		
+
 		String extension = Response.FindExtension(m_RequestPage);
 		isHtml = HtmlRepository.GetInstance().IsHtml(extension);
-		
+
 		out.println((isHtml ? "GET " : "HEAD ") + m_RequestPage + (Crawler.IsChunkedEnabled() ? " HTTP/1.1" : " HTTP/1.0"));
 		out.println("Host:" + m_Host);
 		out.println(); 
@@ -55,7 +55,7 @@ public class HttpCrawlerRequest {
 		sendRequest(socket);
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		
+
 		StringBuilder responseAsString = new StringBuilder();
 		String line;
 		boolean measureEndTime = true;
@@ -64,7 +64,7 @@ public class HttpCrawlerRequest {
 				HtmlRepository.GetInstance().UpdateAverageRtt(System.currentTimeMillis() - m_StartingHttpRequestTime);
 				measureEndTime = false;
 			}
-			
+
 			responseAsString.append(line + "\r\n");
 		}
 
@@ -75,10 +75,12 @@ public class HttpCrawlerRequest {
 			boolean isChunked = headers.containsKey("transfer-encoding") && 
 					headers.get("transfer-encoding").equals("chunked");
 			responseAsString.append("\r\n");
+			
 			if (!isHtml)
 			{
 				return responseAsString.toString();
 			}
+			
 			if (isChunked) {
 				readResponseAsChunked(reader, line, responseAsString);
 			} else {
@@ -87,12 +89,15 @@ public class HttpCrawlerRequest {
 				}
 			}
 			reader.close();
+			
 			return responseAsString.toString();
 		} else  {
 			reader.close();
+			
 			if (m_NumberOfRedirects == MAX_NUMBER_OF_REDIRECTS ){
 				return null; // 
 			}
+			
 			if (headers.get("response_code").contains("301")) {	
 				if (headers.get("location").contains(m_Host)) {
 					return new HttpCrawlerRequest(m_Host, headers.get("location").substring(headers.get("location").lastIndexOf(m_Host + "/") + m_Host.length()), m_NumberOfRedirects + 1).sendRequestReceiveResponse();
@@ -108,6 +113,7 @@ public class HttpCrawlerRequest {
 				}
 			} 
 		}
+		
 		return null;
 	}
 
@@ -123,6 +129,7 @@ public class HttpCrawlerRequest {
 						);
 			}
 		}
+		
 		return headers;
 	}
 

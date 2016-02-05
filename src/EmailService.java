@@ -19,71 +19,70 @@ public class EmailService {
 	public static void SendEmail(String from, String recipient, String subject, String attachmentName) {
 		String to = recipient;//change accordingly
 
-	      // Sender's email ID needs to be mentioned
-	      final String username = "lab02crawler";//change accordingly
-	      final String password = "CreepyCrawlers";//change accordingly
+		// Sender's email ID needs to be mentioned
+		final String username = "lab02crawler";//change accordingly
+		final String password = "CreepyCrawlers";//change accordingly
 
-	      // Assuming you are sending email through relay.jangosmtp.net
-	      String host = "smtp.gmail.com";
+		// Assuming you are sending email through relay.jangosmtp.net
+		String host = "smtp.gmail.com";
 
-	      Properties props = new Properties();
-	      props.put("mail.smtp.auth", "true");
-	      props.put("mail.smtp.starttls.enable", "true");
-	      props.put("mail.smtp.host", host);
-	      props.put("mail.smtp.port", "587");
+		Properties props = new Properties();
+		props.put("mail.smtp.auth", "true");
+		props.put("mail.smtp.starttls.enable", "true");
+		props.put("mail.smtp.host", host);
+		props.put("mail.smtp.port", "587");
 
-	      // Get the Session object.
-	      Session session = Session.getInstance(props,
-	      new javax.mail.Authenticator() {
-	         protected PasswordAuthentication getPasswordAuthentication() {
-	            return new PasswordAuthentication(username, password);
-	         }
-	      });
+		// Get the Session object.
+		Session session = Session.getInstance(props,
+				new javax.mail.Authenticator() {
+			protected PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(username, password);
+			}
+		});
 
-	      try {
-	         // Create a default MimeMessage object.
-	         Message message = new MimeMessage(session);
+		try {
+			// Create a default MimeMessage object.
+			Message message = new MimeMessage(session);
 
-	         // Set From: header field of the header.
-	         message.setFrom(new InternetAddress(from));
+			// Set From: header field of the header.
+			message.setFrom(new InternetAddress(from));
 
-	         // Set To: header field of the header.
-	         message.setRecipients(Message.RecipientType.TO,
-	         InternetAddress.parse(to));
+			// Set To: header field of the header.
+			message.setRecipients(Message.RecipientType.TO,
+					InternetAddress.parse(to));
 
-	         // Set Subject: header field
-	         message.setSubject("Testing Subject");
+			// Set Subject: header field
+			message.setSubject("Testing Subject");
 
-	         // Create the message part
-	         BodyPart messageBodyPart = new MimeBodyPart();
+			// Create the message part
+			BodyPart messageBodyPart = new MimeBodyPart();
 
-	         // Now set the actual message
-	         messageBodyPart.setText("This is message body");
+			// Now set the actual message
+			messageBodyPart.setText("This is message body");
 
-	         // Create a multipar message
-	         Multipart multipart = new MimeMultipart();
+			// Create a multipar message
+			Multipart multipart = new MimeMultipart();
 
-	         // Set text message part
-	         multipart.addBodyPart(messageBodyPart);
+			// Set text message part
+			multipart.addBodyPart(messageBodyPart);
 
-	         // Part two is attachment
-	         messageBodyPart = new MimeBodyPart();
-	         DataSource source = new FileDataSource(attachmentName);
-	         messageBodyPart.setDataHandler(new DataHandler(source));
-	         messageBodyPart.setFileName("Results");
-	         multipart.addBodyPart(messageBodyPart);
+			// Part two is attachment
+			messageBodyPart = new MimeBodyPart();
+			DataSource source = new FileDataSource(attachmentName);
+			messageBodyPart.setDataHandler(new DataHandler(source));
+			messageBodyPart.setFileName("Results");
+			multipart.addBodyPart(messageBodyPart);
 
-	         // Send the complete message parts
-	         message.setContent(multipart);
+			// Send the complete message parts
+			message.setContent(multipart);
 
-	         // Send message
-	         Transport.send(message);
+			// Send message
+			Transport.send(message);
 
-	         System.out.println("Sent message successfully....");
+			System.out.println("Sent message successfully....");
 
-	      } catch (MessagingException e) {
-	            throw new RuntimeException(e);
-	      }
-
+		} catch (MessagingException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

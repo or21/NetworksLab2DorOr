@@ -7,31 +7,29 @@ import java.util.HashSet;
 
 public class HtmlRepository {
 
-	private ArrayList<String> m_PendingUrlsToDownload;	
-	private ArrayList<Response> m_PendingResponsesToParse;
-	private ArrayList<String> m_ExternalLinks;
-
-	private HashSet<String> m_DisallowedUrls;
-	private HashSet<String> m_AllowedUrls;
-
-	private ArrayList<String> m_ExternalsDomains;
-	private ArrayList<String> m_PreviousDomains;
-
-	private HashMap<String, Response> m_ExistingResponses;
-
-	private ArrayList<String> m_ImagesTypes;
-	private ArrayList<String> m_VideosTypes;
-	private ArrayList<String> m_DocsTypes;
+	private static HtmlRepository m_Instance;
 
 	private final static Object RESPONSES_LOCK_OBJECT = new Object();
 	private final static Object URLS_LOCK_OBJECT = new Object();
 	private final static Object EXTERNALS_LOCK_OBJECT = new Object();
 	private final static Object AVERAGE_LOCK_OBJECT = new Object();
+	
+	private ArrayList<Response> m_PendingResponsesToParse;
+	private ArrayList<String> m_PendingUrlsToDownload;	
+	private ArrayList<String> m_ExternalLinks;
+	private ArrayList<String> m_ExternalsDomains;
+	private ArrayList<String> m_PreviousDomains;
+	private ArrayList<String> m_ImagesTypes;
+	private ArrayList<String> m_VideosTypes;
+	private ArrayList<String> m_DocsTypes;
+
+	private HashSet<String> m_DisallowedUrls;
+	private HashSet<String> m_AllowedUrls;
+
+	private HashMap<String, Response> m_ExistingResponses;
 
 	private long m_SumOfRtt;
 	private long m_NumOfHttpRequestsSent;
-
-	private static HtmlRepository m_Instance;
 
 	private HtmlRepository() {
 		HashMap<String, String> configParams = ConfigFile.GetInstance().GetConfigurationParameters();
@@ -69,6 +67,7 @@ public class HtmlRepository {
 				}
 			}
 		}
+		
 		return m_Instance;
 	}
 
@@ -245,7 +244,7 @@ public class HtmlRepository {
 	public void addExternalDomain(String i_Domain) {
 		m_ExternalsDomains.add(i_Domain);
 	}
-	
+
 	public boolean IsImage(String i_Extension) {
 		return m_ImagesTypes.contains(i_Extension);
 	}
@@ -272,7 +271,7 @@ public class HtmlRepository {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public Response GetResponseForHome() {
 		return m_ExistingResponses.get("/");
 	}

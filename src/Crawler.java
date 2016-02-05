@@ -36,7 +36,7 @@ public class Crawler {
 	private String m_EmailAddress;
 	private boolean m_ShouldSendEmail;
 	private ArrayList<Integer> m_OpenPorts;
-	
+
 	public static boolean isCrawlerRunning;
 
 	private final Runnable onAddedResponse = new Runnable() {
@@ -63,7 +63,7 @@ public class Crawler {
 		if (m_HtmlRepository.Host == null || m_HtmlRepository.Host.length() == 0) {
 			throw new IllegalArgumentException("Hostname not specified");
 		}
-		
+
 		try {
 			InetAddress.getByName(m_HtmlRepository.Host).isReachable(1000);
 		} catch (Exception e) {
@@ -74,7 +74,7 @@ public class Crawler {
 		m_IgnoreRobotsEnabled = i_Params.containsKey(CHECK_BOX_IGNORE_ROBOTS_KEY);
 		m_IsReadingChunkedEnabled  = i_Params.containsKey(CHECK_BOX_SHOULD_USE_CHUNKED);
 		m_EmailAddress = i_Params.get(TEXT_BOX_EMAIL_ADDRESS_KEY);
-		m_ShouldSendEmail = m_EmailAddress != null;
+		m_ShouldSendEmail = !m_EmailAddress.equals("");
 		m_Parsers = new Parser[Integer.parseInt(configParams.get("maxAnalyzers"))];
 		m_Downloaders = new Downloader[Integer.parseInt(configParams.get("maxDownloaders"))];
 		m_OpenPorts = new ArrayList<Integer>();
@@ -129,7 +129,6 @@ public class Crawler {
 						downloader.join();
 					}
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();	
 				}
 			}
@@ -139,7 +138,7 @@ public class Crawler {
 			performPortScan();
 		}
 
-		System.out.println("\nWe finished parsing through everything! :)\nCheck your email for the results");
+		System.out.println("\nWe finished parsing through everything! :)\n");
 
 		String statistics = HtmlRepository.GetInstance().CreateStatistics(m_IgnoreRobotsEnabled, m_TCPPortScanEnabled, m_OpenPorts);
 		File result = new File(filename);
@@ -151,7 +150,6 @@ public class Crawler {
 			writer.flush();
 			writer.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
 
@@ -160,6 +158,7 @@ public class Crawler {
 		HtmlRepository.GetInstance().Dispose();
 		if (m_ShouldSendEmail) {
 			EmailService.SendEmail("Crawler", m_EmailAddress, "CrawlerResults", filename);
+			System.out.println("Check your email for the results\n");
 		}
 		isCrawlerRunning = false;
 	}
@@ -188,7 +187,7 @@ public class Crawler {
 		}
 
 	}
-	
+
 	private void addFileLinkToHistoryHtml(String i_FileToAdd) {
 		File file = new File(HISTORY_DOMAINS); 
 		File temp;
@@ -274,7 +273,7 @@ public class Crawler {
 			}
 		}
 	}
-	
+
 	public static boolean IsChunkedEnabled() {
 		return m_IsReadingChunkedEnabled;
 	}

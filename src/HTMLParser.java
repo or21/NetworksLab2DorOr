@@ -45,7 +45,7 @@ public class HTMLParser {
 		if (i_PageAddress.startsWith("//")) {
 			i_PageAddress = i_PageAddress.replaceFirst("//", "");
 		}
-		
+
 		if (i_PageAddress.startsWith("/")) {
 			m_Urls.add(i_PageAddress);
 			m_NumberOfLinksFound++;

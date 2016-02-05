@@ -11,9 +11,4 @@ public class MainServer {
 			System.out.println("Usage: Config file not found");
 		}
 	}
-
-		// Send URL and get content and submit response
-
-		//		
-		//		buildResponsePage();
 }

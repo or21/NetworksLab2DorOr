@@ -26,7 +26,6 @@ public class Downloader extends Thread {
 			try {
 				fullResponse = request.sendRequestReceiveResponse();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
