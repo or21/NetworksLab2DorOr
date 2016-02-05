@@ -213,6 +213,10 @@ public class HtmlRepository {
 		}
 	}
 	
+	public boolean isKnownExtension(String i_Extension) {
+		return m_DocsTypes.contains(i_Extension) || m_ImagesTypes.contains(i_Extension) || m_VideosTypes.contains(i_Extension);
+	}
+	
 	public long AverageRtt() {
 		return m_SumOfRtt / m_NumOfHttpRequestsSent;
 	}
