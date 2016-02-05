@@ -22,6 +22,7 @@ public class Crawler {
 	private final String TEXT_BOX_HOST_KEY = "textBoxURL";
 	private final String CHECK_BOX_IGNORE_ROBOTS_KEY = "checkBoxIgnoreRobots";
 	private final String CHECK_BOX_TCP_PORT_SCAN_KEY = "checkBoxTCPPortScan";
+	private final String TEXT_BOX_EMAIL_ADDRESS_KEY = "textBoxEmail";
 	private final String MAIN_PAGE_NAME = "static/html/index.html";
 	private final String CHECK_BOX_SHOULD_USE_CHUNKED = "checkBoxShouldUseChunked";
 	public static String ALREADY_RUNNING = "static/html/crawler_is_already_running.html";
@@ -33,6 +34,8 @@ public class Crawler {
 	private boolean m_TCPPortScanEnabled = false;
 	private boolean m_IgnoreRobotsEnabled = false;
 	private static boolean m_IsReadingChunkedEnabled = false;
+	private String m_EmailAddress;
+	private boolean m_ShouldSendEmail;
 	private ArrayList<Integer> m_OpenPorts;
 	
 	public static boolean isCrawlerRunning;
@@ -71,6 +74,8 @@ public class Crawler {
 		m_TCPPortScanEnabled = i_Params.containsKey(CHECK_BOX_TCP_PORT_SCAN_KEY);
 		m_IgnoreRobotsEnabled = i_Params.containsKey(CHECK_BOX_IGNORE_ROBOTS_KEY);
 		m_IsReadingChunkedEnabled  = i_Params.containsKey(CHECK_BOX_SHOULD_USE_CHUNKED);
+		m_EmailAddress = i_Params.get(TEXT_BOX_EMAIL_ADDRESS_KEY);
+		m_ShouldSendEmail = m_EmailAddress != null;
 		m_Parsers = new Parser[Integer.parseInt(configParams.get("maxAnalyzers"))];
 		m_Downloaders = new Downloader[Integer.parseInt(configParams.get("maxDownloaders"))];
 		m_OpenPorts = new ArrayList<Integer>();
@@ -135,7 +140,7 @@ public class Crawler {
 			performPortScan();
 		}
 
-		System.out.println("\nWe finished parsing through everything! :)\n");
+		System.out.println("\nWe finished parsing through everything! :)\nCheck your email for the results");
 
 		String statistics = HtmlRepository.GetInstance().CreateStatistics(m_IgnoreRobotsEnabled, m_TCPPortScanEnabled, m_OpenPorts);
 		File result = new File(filename);
@@ -154,6 +159,9 @@ public class Crawler {
 		addFileLinkToIndexHtml(filename.substring(28));
 		addFileLinkToHistoryHtml(HtmlRepository.GetInstance().Host);
 		HtmlRepository.GetInstance().Dispose();
+		if (m_ShouldSendEmail) {
+			EmailService.SendEmail("Crawler", m_EmailAddress, "CrawlerResults", filename);
+		}
 		isCrawlerRunning = false;
 	}
 
