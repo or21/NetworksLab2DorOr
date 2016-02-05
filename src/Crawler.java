@@ -177,6 +177,7 @@ public class Crawler {
 				System.out.println("WebCrawler: Internal email server error, please try again");
 			}
 		}
+		
 		isCrawlerRunning = false;
 	}
 
