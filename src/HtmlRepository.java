@@ -268,4 +268,8 @@ public class HtmlRepository {
 			e.printStackTrace();
 		}
 	}
+	
+	public Response GetResponseForHome() {
+		return m_ExistingResponses.get("/");
+	}
 }

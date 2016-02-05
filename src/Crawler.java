@@ -7,8 +7,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -50,7 +52,7 @@ public class Crawler {
 		}
 	};
 
-	public Crawler(HashMap<String, String> i_Params) throws IllegalArgumentException {
+	public Crawler(HashMap<String, String> i_Params) throws IllegalArgumentException, IllegalStateException {
 		isCrawlerRunning = true;
 		HashMap<String, String> configParams = ConfigFile.GetInstance().GetConfigurationParameters();
 		m_HtmlRepository = HtmlRepository.GetInstance();
@@ -58,6 +60,12 @@ public class Crawler {
 
 		if (m_HtmlRepository.Host == null || m_HtmlRepository.Host.length() == 0) {
 			throw new IllegalArgumentException("Hostname not specified");
+		}
+		
+		try {
+			InetAddress.getByName(m_HtmlRepository.Host).isReachable(1000);
+		} catch (Exception e) {
+			throw new IllegalStateException("Hostname unreachable");
 		}
 
 		m_TCPPortScanEnabled = i_Params.containsKey(CHECK_BOX_TCP_PORT_SCAN_KEY);
@@ -72,7 +80,7 @@ public class Crawler {
 		}
 	}
 
-	public String Run() {
+	public void Run() {
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
 		String filename = "static/html/crawler_results/" + m_HtmlRepository.Host + "_" + dateFormat.format(new Date()) + ".html";
 		m_HtmlRepository.AddUrl("/robots.txt");
@@ -147,7 +155,6 @@ public class Crawler {
 		addFileLinkToHistoryHtml(HtmlRepository.GetInstance().Host);
 		HtmlRepository.GetInstance().Dispose();
 		isCrawlerRunning = false;
-		return filename;
 	}
 
 	private void addFileLinkToIndexHtml(String i_FileToAdd) {

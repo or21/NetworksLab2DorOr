@@ -8,6 +8,10 @@ import java.util.HashMap;
 
 public class PostRequest extends GetRequest {
 
+	private final String CRAWLER_STARTED_SUCCESSFULLY = "static/html/crawler_started_successfully.html";
+	private final String CRAWLER_FAILED_BAD_HOSTNAME = "static/html/crawler_failed_bad_hostname.html";
+	private final String CRAWLER_FAILED_EMPTY_HOSTNAME = "static/html/crawler_failed_empty_hostname.html";
+	
 	/*
 	 * Constructor
 	 */
@@ -53,9 +57,22 @@ public class PostRequest extends GetRequest {
 					m_Content = Tools.ReadFile(new File(Crawler.ALREADY_RUNNING));
 				} else {
 					System.out.println(m_Params);
-					Crawler webcrawler = new Crawler(m_Params);
-					String resultsFileName = webcrawler.Run();
-					m_Content = Tools.ReadFile(new File(resultsFileName));
+					try {
+						final Crawler webcrawler = new Crawler(m_Params);
+						m_Content = Tools.ReadFile(new File(CRAWLER_STARTED_SUCCESSFULLY));
+						new Thread() {
+							@Override
+							public void run() {
+								webcrawler.Run();
+							};
+						}.start();
+					} catch (IllegalArgumentException iae) {
+						m_Content = Tools.ReadFile(new File(CRAWLER_FAILED_EMPTY_HOSTNAME));
+						Crawler.isCrawlerRunning = false;
+					} catch (IllegalStateException ise) {
+						m_Content = Tools.ReadFile(new File(CRAWLER_FAILED_BAD_HOSTNAME));
+						Crawler.isCrawlerRunning = false;
+					} 
 				}
 			}
 			m_Headers = m_ShouldSendChunked ? Tools.SetupChunkedResponseHeaders(m_Type) : Tools.SetupResponseHeaders(m_Content, m_Type);
