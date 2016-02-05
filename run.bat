@@ -1,1 +1,1 @@
-java -cp ".;./jars/*;bin" MainServer
+java -cp ".;jars/*;bin" MainServer

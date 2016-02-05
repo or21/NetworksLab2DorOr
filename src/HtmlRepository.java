@@ -17,7 +17,7 @@ public class HtmlRepository {
 	private ArrayList<Response> m_PendingResponsesToParse;
 	private ArrayList<String> m_PendingUrlsToDownload;	
 	private ArrayList<String> m_ExternalLinks;
-	private ArrayList<String> m_ExternalsDomains;
+	private HashSet<String> m_ExternalsDomains;
 	private ArrayList<String> m_PreviousDomains;
 	private ArrayList<String> m_ImagesTypes;
 	private ArrayList<String> m_VideosTypes;
@@ -40,7 +40,7 @@ public class HtmlRepository {
 		m_DisallowedUrls = new HashSet<>();
 		m_AllowedUrls = new HashSet<>();
 		m_ExternalLinks = new ArrayList<>();
-		m_ExternalsDomains = new ArrayList<String>();
+		m_ExternalsDomains = new HashSet<String>();
 
 		m_ImagesTypes = getTypesFromConfig(configParams.get("imageExtensions")); 
 		m_VideosTypes = getTypesFromConfig(configParams.get("videoExtensions")); 

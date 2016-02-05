@@ -16,16 +16,22 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
+import javax.mail.MessagingException;
+
 public class Crawler {
 
 	private final String TEXT_BOX_HOST_KEY = "textBoxURL";
 	private final String CHECK_BOX_IGNORE_ROBOTS_KEY = "checkBoxIgnoreRobots";
 	private final String CHECK_BOX_TCP_PORT_SCAN_KEY = "checkBoxTCPPortScan";
 	private final String TEXT_BOX_EMAIL_ADDRESS_KEY = "textBoxEmail";
-	private final String MAIN_PAGE_NAME = "static/html/index.html";
+	private final String MAIN_PAGE_NAME = RequestFactory.m_ConfigFileRootPath + "static/html/index.html";
 	private final String CHECK_BOX_SHOULD_USE_CHUNKED = "checkBoxShouldUseChunked";
-	public static String ALREADY_RUNNING = "static/html/crawler_is_already_running.html";
-	public static String HISTORY_DOMAINS = "static/html/history_domains.txt";
+	public static String ALREADY_RUNNING = RequestFactory.m_ConfigFileRootPath + "static/html/crawler_is_already_running.html";
+	public static String HISTORY_DOMAINS = RequestFactory.m_ConfigFileRootPath + "static/html/history_domains.txt";
+
+
+	private final static Object m_ParsersLock = new Object();
+	private final static Object m_DownloadersLock = new Object();
 
 	private HtmlRepository m_HtmlRepository;
 	private Parser[] m_Parsers;
@@ -42,7 +48,9 @@ public class Crawler {
 	private final Runnable onAddedResponse = new Runnable() {
 		@Override
 		public void run() {
-			UpdateNewParser();
+			synchronized (m_ParsersLock) {
+				UpdateNewParser();
+			}
 		}
 	};
 
@@ -50,7 +58,9 @@ public class Crawler {
 
 		@Override
 		public void run() {
-			UpdateNewDownloader();
+			synchronized(m_DownloadersLock) {
+				UpdateNewDownloader();
+			}
 		}
 	};
 
@@ -74,6 +84,7 @@ public class Crawler {
 		m_IgnoreRobotsEnabled = i_Params.containsKey(CHECK_BOX_IGNORE_ROBOTS_KEY);
 		m_IsReadingChunkedEnabled  = i_Params.containsKey(CHECK_BOX_SHOULD_USE_CHUNKED);
 		m_EmailAddress = i_Params.get(TEXT_BOX_EMAIL_ADDRESS_KEY);
+		m_EmailAddress = m_EmailAddress.replace("%40", "@");
 		m_ShouldSendEmail = !m_EmailAddress.equals("");
 		m_Parsers = new Parser[Integer.parseInt(configParams.get("maxAnalyzers"))];
 		m_Downloaders = new Downloader[Integer.parseInt(configParams.get("maxDownloaders"))];
@@ -86,7 +97,7 @@ public class Crawler {
 
 	public void Run() {
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
-		String filename = "static/html/crawler_results/" + m_HtmlRepository.Host + "_" + dateFormat.format(new Date()) + ".html";
+		String filename = RequestFactory.m_ConfigFileRootPath + "static/html/crawler_results/" + m_HtmlRepository.Host + "_" + dateFormat.format(new Date()) + ".html";
 		m_HtmlRepository.AddUrl("/robots.txt");
 		Downloader robotsRequest = new Downloader(null, m_IgnoreRobotsEnabled);
 		robotsRequest.start();
@@ -153,12 +164,18 @@ public class Crawler {
 			e.printStackTrace();
 		}		
 
-		addFileLinkToIndexHtml(filename.substring(28));
+		addFileLinkToIndexHtml(filename.substring(42));
 		addFileLinkToHistoryHtml(HtmlRepository.GetInstance().Host);
 		HtmlRepository.GetInstance().Dispose();
 		if (m_ShouldSendEmail) {
-			EmailService.SendEmail("Crawler", m_EmailAddress, "CrawlerResults", filename);
-			System.out.println("Check your email for the results\n");
+			try {
+				EmailService.SendEmail("Crawler", m_EmailAddress, "CrawlerResults", filename);
+				System.out.println("Check your email for the results");
+			} catch (MessagingException me) {
+				System.out.println("WebCrawler: Email address is not valid, email was not sent");
+			} catch (Exception e) {
+				System.out.println("WebCrawler: Internal email server error, please try again");
+			}
 		}
 		isCrawlerRunning = false;
 	}
