@@ -245,6 +245,10 @@ public class HtmlRepository {
 	public void addExternalDomain(String i_Domain) {
 		m_ExternalsDomains.add(i_Domain);
 	}
+	
+	public boolean IsImage(String i_Extension) {
+		return m_ImagesTypes.contains(i_Extension);
+	}
 
 	private void addPreviousDomains() {
 		m_PreviousDomains = new ArrayList<String>();
