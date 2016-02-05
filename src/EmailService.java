@@ -68,7 +68,7 @@ public class EmailService {
 		messageBodyPart = new MimeBodyPart();
 		DataSource source = new FileDataSource(attachmentName);
 		messageBodyPart.setDataHandler(new DataHandler(source));
-		messageBodyPart.setFileName("Results");
+		messageBodyPart.setFileName("Results.html");
 		multipart.addBodyPart(messageBodyPart);
 
 		// Send the complete message parts
