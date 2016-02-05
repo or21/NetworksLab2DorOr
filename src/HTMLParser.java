@@ -11,7 +11,7 @@ public class HTMLParser {
 	private String m_HtmlOrVideoIdentifier = "<a href";
 	private String m_ImageIdentifier = "<img src";
 	private int m_NumberOfLinksFound = 0;
-	private List<String> m_HtmlExtensions = Arrays.asList("html", "asp", "htm", "aspx");
+	private List<String> m_HtmlExtensions = Arrays.asList("html", "asp", "htm", "aspx", "php");
 
 	public HTMLParser() {
 		m_Urls = new ArrayList<>();
@@ -33,11 +33,11 @@ public class HTMLParser {
 
 	private void findAllRelevantData(String line, String i_ObjectToLookFor) {
 		String[] identifiers = i_ObjectToLookFor.split(" ");
-		Pattern pattern = Pattern.compile(identifiers[0] + "\\s[^>]*?\\s*" + identifiers[1] + "=\\s*['\"]([^'\"]*?)['\"][^>]*?");
+		Pattern pattern = Pattern.compile(identifiers[0] + "\\s[^>]*?\\s*(" + identifiers[1] + ")?\\s*=\\s*['\"]([^'\"]*?)['\"][^>]*?");
 
 		Matcher matcher = pattern.matcher(line);
 		if (matcher.find()) {
-			filterAddress(matcher.group(1), i_ObjectToLookFor);
+			filterAddress(matcher.group(2), i_ObjectToLookFor);
 		}
 	}
 
@@ -59,6 +59,7 @@ public class HTMLParser {
 						m_NumberOfLinksFound++;
 					}
 					else {
+						HtmlRepository.GetInstance().addExternalDomain(matcher.group(4));
 						HtmlRepository.GetInstance().AddExternalLink(i_PageAddress);
 					}
 				} catch (Exception e) {
@@ -74,6 +75,7 @@ public class HTMLParser {
 								m_NumberOfLinksFound++;
 							}
 							else {
+								HtmlRepository.GetInstance().addExternalDomain(matcher.group(4));
 								HtmlRepository.GetInstance().AddExternalLink(i_PageAddress);
 							}
 						}

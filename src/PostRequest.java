@@ -49,10 +49,14 @@ public class PostRequest extends GetRequest {
 				content.append("</body>\n</html>");
 				m_Content = content.toString().getBytes();
 			} else {
-				System.out.println(m_Params);
-				Crawler webcrawler = new Crawler(m_Params);
-				String resultsFileName = webcrawler.Run();
-				m_Content = Tools.ReadFile(new File(resultsFileName));
+				if (Crawler.isCrawlerRunning) {
+					m_Content = Tools.ReadFile(new File(Crawler.ALREADY_RUNNING));
+				} else {
+					System.out.println(m_Params);
+					Crawler webcrawler = new Crawler(m_Params);
+					String resultsFileName = webcrawler.Run();
+					m_Content = Tools.ReadFile(new File(resultsFileName));
+				}
 			}
 			m_Headers = m_ShouldSendChunked ? Tools.SetupChunkedResponseHeaders(m_Type) : Tools.SetupResponseHeaders(m_Content, m_Type);
 			StringBuilder responseString = new StringBuilder(createHeaders());

@@ -1,3 +1,5 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,8 +14,11 @@ public class HtmlRepository {
 	private HashSet<String> m_DisallowedUrls;
 	private HashSet<String> m_AllowedUrls;
 
+	private ArrayList<String> m_ExternalsDomains;
+	private ArrayList<String> m_PreviousDomains;
+
 	private HashMap<String, Response> m_ExistingResponses;
-	
+
 	private ArrayList<String> m_ImagesTypes;
 	private ArrayList<String> m_VideosTypes;
 	private ArrayList<String> m_DocsTypes;
@@ -22,7 +27,7 @@ public class HtmlRepository {
 	private final static Object URLS_LOCK_OBJECT = new Object();
 	private final static Object EXTERNALS_LOCK_OBJECT = new Object();
 	private final static Object AVERAGE_LOCK_OBJECT = new Object();
-	
+
 	private long m_SumOfRtt;
 	private long m_NumOfHttpRequestsSent;
 
@@ -30,26 +35,27 @@ public class HtmlRepository {
 
 	private HtmlRepository() {
 		HashMap<String, String> configParams = ConfigFile.GetInstance().GetConfigurationParameters();
-		
+
 		m_PendingResponsesToParse = new ArrayList<>();
 		m_PendingUrlsToDownload = new ArrayList<>();
 		m_ExistingResponses = new HashMap<>();
 		m_DisallowedUrls = new HashSet<>();
 		m_AllowedUrls = new HashSet<>();
 		m_ExternalLinks = new ArrayList<>();
-		
+		m_ExternalsDomains = new ArrayList<String>();
+
 		m_ImagesTypes = getTypesFromConfig(configParams.get("imageExtensions")); 
 		m_VideosTypes = getTypesFromConfig(configParams.get("videoExtensions")); 
 		m_DocsTypes = getTypesFromConfig(configParams.get("documentExtensions")); 
 	}
-	
+
 	private ArrayList<String> getTypesFromConfig(String i_TypesAsString) {
 		ArrayList<String> typesToReturn = new ArrayList<String>();
 		String[] typesAsArray = i_TypesAsString.split(",");
 		for (String type : typesAsArray) {
 			typesToReturn.add(type.trim());
 		}
-		
+
 		return typesToReturn;
 	}
 
@@ -69,7 +75,7 @@ public class HtmlRepository {
 	public HashSet<String> GetDisallowedUrls() {
 		return m_DisallowedUrls;
 	}
-	
+
 	public boolean IsReadyForDiagnostics() {
 		synchronized(RESPONSES_LOCK_OBJECT) {
 			synchronized(URLS_LOCK_OBJECT) {
@@ -176,7 +182,7 @@ public class HtmlRepository {
 		}
 
 		StringBuilder response = new StringBuilder();
-		
+
 		response.append("<html><head><title>Your results are here!</title></head><body>");
 		response.append("Crawler respected robots.txt: ").append(!i_IgnoreRobotsEnabled).append("<br>");
 		response.append("Number of images is: ").append(numberOfImages).append("<br>");
@@ -189,39 +195,77 @@ public class HtmlRepository {
 		response.append("Total size (in bytes) of pages is: ").append(totalPagesSize).append("<br>");
 		response.append("Number of internal links is: ").append(numOfInternalLinks).append("<br>");
 		response.append("Number of external links is: ").append(numOfExternalLinks).append("<br>");
-		
+		response.append("Number of domains the crawled domain is connected to: ").append(m_ExternalsDomains.size()).append("<br>");
+
+		addPreviousDomains();
+		for (String domain : m_ExternalsDomains) {
+			if (m_PreviousDomains.contains(domain)) {
+				response.append(("<a href=\"http://" + domain + "\">" + domain +"</a>" + "<br>"));
+			}
+			else {
+				response.append(domain + "<br>");
+			}
+		}
+
 		if (i_TCPPortScanEnabled) {
 			response.append("The opened ports are: ").append(Arrays.toString(i_OpenPorts.toArray()).replace("[", "").replace("]", "")).append("<br>");
 		}
-		
+
 		response.append("Average RTT in milliseconds is: ").append(HtmlRepository.GetInstance().AverageRtt()).append("<br>");
-		
+
 		response.append("<br>" + "Main page: ").append("<a href=\"/" + "\">" + "Home" +"</a>" + "<br>");
 		response.append("</body></html>");
 
 		return response.toString();
 	}
-	
+
 	public void Dispose() {
 		m_Instance = null;
 	}
-	
+
 	public void UpdateAverageRtt(long i_Rtt) {
 		synchronized (AVERAGE_LOCK_OBJECT) {
 			m_NumOfHttpRequestsSent++;
 			m_SumOfRtt += i_Rtt;
 		}
 	}
-	
+
 	public boolean isKnownExtension(String i_Extension) {
 		return m_DocsTypes.contains(i_Extension) || m_ImagesTypes.contains(i_Extension) || m_VideosTypes.contains(i_Extension);
 	}
-	
+
 	public long AverageRtt() {
 		return m_SumOfRtt / m_NumOfHttpRequestsSent;
 	}
-	
+
 	public boolean IsHtml(String i_Extension) {
 		return !m_ImagesTypes.contains(i_Extension) && !m_VideosTypes.contains(i_Extension) && !m_VideosTypes.contains(i_Extension);
+	}
+
+	public void addExternalDomain(String i_Domain) {
+		m_ExternalsDomains.add(i_Domain);
+	}
+
+	private void addPreviousDomains() {
+		m_PreviousDomains = new ArrayList<String>();
+		try {
+			String fileName = Crawler.HISTORY_DOMAINS;
+			try{
+				FileReader inputFile = new FileReader(fileName);
+				BufferedReader bufferReader = new BufferedReader(inputFile);
+				String line = bufferReader.readLine();
+				while ((line = bufferReader.readLine()) != null)   {
+					if (!m_PreviousDomains.contains(line)) {
+						m_PreviousDomains.add(line);
+					}
+				}
+
+				bufferReader.close();
+			} catch(Exception e){
+				System.out.println("Error while reading file line by line:" + e.getMessage());                      
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

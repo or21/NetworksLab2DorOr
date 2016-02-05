@@ -22,6 +22,8 @@ public class Crawler {
 	private final String CHECK_BOX_TCP_PORT_SCAN_KEY = "checkBoxTCPPortScan";
 	private final String MAIN_PAGE_NAME = "static/html/index.html";
 	private final String CHECK_BOX_SHOULD_USE_CHUNKED = "checkBoxShouldUseChunked";
+	public static String ALREADY_RUNNING = "static/html/crawler_is_already_running.html";
+	public static String HISTORY_DOMAINS = "static/html/history_domains.txt";
 
 	private HtmlRepository m_HtmlRepository;
 	private Parser[] m_Parsers;
@@ -30,6 +32,8 @@ public class Crawler {
 	private boolean m_IgnoreRobotsEnabled = false;
 	private static boolean m_IsReadingChunkedEnabled = false;
 	private ArrayList<Integer> m_OpenPorts;
+	
+	public static boolean isCrawlerRunning;
 
 	private final Runnable onAddedResponse = new Runnable() {
 		@Override
@@ -47,6 +51,7 @@ public class Crawler {
 	};
 
 	public Crawler(HashMap<String, String> i_Params) throws IllegalArgumentException {
+		isCrawlerRunning = true;
 		HashMap<String, String> configParams = ConfigFile.GetInstance().GetConfigurationParameters();
 		m_HtmlRepository = HtmlRepository.GetInstance();
 		m_HtmlRepository.Host = i_Params.get(TEXT_BOX_HOST_KEY);
@@ -139,7 +144,9 @@ public class Crawler {
 		}		
 
 		addFileLinkToIndexHtml(filename.substring(28));
+		addFileLinkToHistoryHtml(HtmlRepository.GetInstance().Host);
 		HtmlRepository.GetInstance().Dispose();
+		isCrawlerRunning = false;
 		return filename;
 	}
 
@@ -150,12 +157,37 @@ public class Crawler {
 			temp = File.createTempFile("temp-file-name", ".tmp");
 
 			BufferedReader br = new BufferedReader(new FileReader(file));
-			PrintWriter pw =  new PrintWriter(new FileWriter( temp ));
+			PrintWriter pw =  new PrintWriter(new FileWriter(temp));
 			String line;
 			while ((line = br.readLine()) != null) {
 				pw.println(line);
 				if (line.contains("Older crawled files")) {
 					pw.println("<a href=\"" + "/crawler_results/" + i_FileToAdd + "\">" + i_FileToAdd.replace("_", "-").replace(".html", "") +"</a>" + "<br>");
+				}
+			}
+			br.close();
+			pw.close();
+			file.delete();
+			temp.renameTo(file);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+	
+	private void addFileLinkToHistoryHtml(String i_FileToAdd) {
+		File file = new File(HISTORY_DOMAINS); 
+		File temp;
+		try {
+			temp = File.createTempFile("temp-file-name", ".tmp");
+
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			PrintWriter pw =  new PrintWriter(new FileWriter(temp));
+			String line;
+			while ((line = br.readLine()) != null) {
+				pw.println(line);
+				if (line.contains("History")) {
+					pw.println(i_FileToAdd);
 				}
 			}
 			br.close();
