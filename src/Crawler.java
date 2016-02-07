@@ -164,7 +164,10 @@ public class Crawler {
 			e.printStackTrace();
 		}		
 
-		addFileLinkToIndexHtml(filename.substring(42));
+		addResultsLinkToFile(filename.substring(42), MAIN_PAGE_NAME);
+		addResultsLinkToFile(filename.substring(42), PostRequest.CRAWLER_STARTED_SUCCESSFULLY);
+		addResultsLinkToFile(filename.substring(42), PostRequest.CRAWLER_FAILED_BAD_HOSTNAME);
+		addResultsLinkToFile(filename.substring(42), PostRequest.CRAWLER_FAILED_EMPTY_HOSTNAME);
 		addFileLinkToHistoryHtml(HtmlRepository.GetInstance().Host);
 		HtmlRepository.GetInstance().Dispose();
 		if (m_ShouldSendEmail) {
@@ -181,8 +184,8 @@ public class Crawler {
 		isCrawlerRunning = false;
 	}
 
-	private void addFileLinkToIndexHtml(String i_FileToAdd) {
-		File file = new File(MAIN_PAGE_NAME); 
+	private void addResultsLinkToFile(String i_FileToAdd, String i_FileName) {
+		File file = new File(i_FileName); 
 		File temp;
 		try {
 			temp = File.createTempFile("temp-file-name", ".tmp");
@@ -203,7 +206,6 @@ public class Crawler {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	private void addFileLinkToHistoryHtml(String i_FileToAdd) {
