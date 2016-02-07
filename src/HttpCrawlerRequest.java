@@ -88,6 +88,7 @@ public class HttpCrawlerRequest {
 					responseAsString.append(line).append("\r\n");
 				}
 			}
+			
 			reader.close();
 			
 			return responseAsString.toString();
@@ -139,10 +140,12 @@ public class HttpCrawlerRequest {
 			if (amountToRead == 0) {
 				break;
 			}
+			
 			char[] buffer = new char[amountToRead + 1];
 			for(int i = 0; i <= amountToRead; i++) {
 				buffer[i] = (char) i_Reader.read();
 			}
+			
 			i_Reader.readLine();
 			responseAsString.append(buffer);
 			responseAsString.append("\r\n");

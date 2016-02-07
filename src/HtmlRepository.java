@@ -13,16 +13,16 @@ public class HtmlRepository {
 	private final static Object URLS_LOCK_OBJECT = new Object();
 	private final static Object EXTERNALS_LOCK_OBJECT = new Object();
 	private final static Object AVERAGE_LOCK_OBJECT = new Object();
-	
+
 	private ArrayList<Response> m_PendingResponsesToParse;
 	private ArrayList<String> m_PendingUrlsToDownload;	
 	private ArrayList<String> m_ExternalLinks;
-	private HashSet<String> m_ExternalsDomains;
 	private ArrayList<String> m_PreviousDomains;
 	private ArrayList<String> m_ImagesTypes;
 	private ArrayList<String> m_VideosTypes;
 	private ArrayList<String> m_DocsTypes;
 
+	private HashSet<String> m_ExternalsDomains;
 	private HashSet<String> m_DisallowedUrls;
 	private HashSet<String> m_AllowedUrls;
 
@@ -60,14 +60,14 @@ public class HtmlRepository {
 	public String Host; // Public property
 
 	public static HtmlRepository GetInstance() {
-		if(m_Instance == null) {
+		if (m_Instance == null) {
 			synchronized (RESPONSES_LOCK_OBJECT) {
 				if(m_Instance == null) {
 					m_Instance = new HtmlRepository();
 				}
 			}
 		}
-		
+
 		return m_Instance;
 	}
 

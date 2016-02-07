@@ -16,12 +16,13 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 public class EmailService {
-	public static void SendEmail(String i_From, String i_Recipient, String i_Subject, String i_ResourceName, String i_HostName) throws MessagingException {
-		String to = i_Recipient;
+	public static void SendEmail(String i_From, String i_Recipient, String i_Subject, String i_ResourceName, String i_HostName) 
+			throws MessagingException {
 
 		final String username = "lab02crawler";
 		final String password = "CreepyCrawlers";
 
+		String to = i_Recipient;
 		String host = "smtp.gmail.com";
 
 		Properties props = new Properties();
@@ -40,8 +41,7 @@ public class EmailService {
 		Message message = new MimeMessage(session);
 
 		message.setFrom(new InternetAddress(i_From));
-		message.setRecipients(Message.RecipientType.TO,
-				InternetAddress.parse(to));
+		message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
 		message.setSubject("Crawler result for " + i_HostName);
 		BodyPart messageBodyPart = new MimeBodyPart();
 		messageBodyPart.setText("Attached crawler run results");

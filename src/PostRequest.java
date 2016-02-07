@@ -8,9 +8,9 @@ import java.util.HashMap;
 
 public class PostRequest extends GetRequest {
 
-	public final static String CRAWLER_STARTED_SUCCESSFULLY = "static/html/crawler_started_successfully.html";
-	public final static String CRAWLER_FAILED_BAD_HOSTNAME = "static/html/crawler_failed_bad_hostname.html";
-	public final static String CRAWLER_FAILED_EMPTY_HOSTNAME = "static/html/crawler_failed_empty_hostname.html";
+	public final static String CRAWLER_STARTED_SUCCESSFULLY = RequestFactory.m_ConfigFileRootPath + "static/html/crawler_started_successfully.html";
+	public final static String CRAWLER_FAILED_BAD_HOSTNAME = RequestFactory.m_ConfigFileRootPath + "static/html/crawler_failed_bad_hostname.html";
+	public final static String CRAWLER_FAILED_EMPTY_HOSTNAME = RequestFactory.m_ConfigFileRootPath + "static/html/crawler_failed_empty_hostname.html";
 
 	/*
 	 * Constructor

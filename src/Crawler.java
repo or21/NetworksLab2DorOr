@@ -24,11 +24,10 @@ public class Crawler {
 	private final String CHECK_BOX_IGNORE_ROBOTS_KEY = "checkBoxIgnoreRobots";
 	private final String CHECK_BOX_TCP_PORT_SCAN_KEY = "checkBoxTCPPortScan";
 	private final String TEXT_BOX_EMAIL_ADDRESS_KEY = "textBoxEmail";
-	private final String MAIN_PAGE_NAME = RequestFactory.m_ConfigFileRootPath + "static/html/index.html";
 	private final String CHECK_BOX_SHOULD_USE_CHUNKED = "checkBoxShouldUseChunked";
+	public static String MAIN_PAGE_NAME = RequestFactory.m_ConfigFileRootPath + "static/html/index.html";
 	public static String ALREADY_RUNNING = RequestFactory.m_ConfigFileRootPath + "static/html/crawler_is_already_running.html";
 	public static String HISTORY_DOMAINS = RequestFactory.m_ConfigFileRootPath + "static/html/history_domains.txt";
-
 
 	private final static Object m_ParsersLock = new Object();
 	private final static Object m_DownloadersLock = new Object();
@@ -105,7 +104,7 @@ public class Crawler {
 		try {
 			robotsRequest.join();
 		} catch (InterruptedException e1) {
-			e1.printStackTrace();
+			System.out.println("Got interrupt during robots scanning");
 		}
 
 		m_HtmlRepository.AddUrl("/");
@@ -114,6 +113,7 @@ public class Crawler {
 				m_HtmlRepository.AddUrl(disallowedUrl);
 			}
 		}
+		
 		Downloader request = new Downloader(onAddedResponse, m_IgnoreRobotsEnabled);
 		request.start();
 
@@ -204,7 +204,7 @@ public class Crawler {
 			file.delete();
 			temp.renameTo(file);
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Failed to change file: " + i_FileName);
 		}
 	}
 
@@ -223,14 +223,14 @@ public class Crawler {
 					pw.println(i_FileToAdd);
 				}
 			}
+			
 			br.close();
 			pw.close();
 			file.delete();
 			temp.renameTo(file);
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Failed to update history file");
 		}
-
 	}
 
 	private void performPortScan() {
