@@ -104,7 +104,7 @@ public class Crawler {
 	 * Once this process is over, the crawler turns to the HtmlRepository to aggregate all of the statistics. 
 	 * It is important to note here that if a response was null, no parsing was done on it, and therefore it is not added to the statistical report.
 	 * Once the html is ready, it is saved for the user evaluation, and its link is presented in the main page. If the user has chosen to receive the email of the report,
-	 * an email will be sent to the given email address, or the crawler will print out that the email was unreachable, or that there was an internal error (for exmaple
+	 * an email will be sent to the given email address, or the crawler will print out that the email was unreachable, or that there was an internal error (for example
 	 * the libraries and jars were not compiled with the .java files...)
 	 */
 	public void Run() {
