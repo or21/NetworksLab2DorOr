@@ -44,6 +44,7 @@ public class Crawler {
 
 	public static boolean isCrawlerRunning;
 
+	// Callback events used by the downloader and parser threads respectively.
 	private final Runnable onAddedResponse = new Runnable() {
 		@Override
 		public void run() {
@@ -94,6 +95,18 @@ public class Crawler {
 		}
 	}
 
+	/**
+	 * Main flow of the crawler (paraphrased from the README file):
+	 * Once the user submits the form, the crawler starts up on its own thread (if the crawler was already running, or for some reason failed, 
+	 * an appropriate message will be returned to the user). First, it sets up the file to return its data to the user, and then sends a /robots.txt request, 
+	 * to get its relevant data, and finally starts the producer-consumer cycle, by adding the "/" request to the url queue, and waits for all its
+	 * child threads to finish.
+	 * Once this process is over, the crawler turns to the HtmlRepository to aggregate all of the statistics. 
+	 * It is important to note here that if a response was null, no parsing was done on it, and therefore it is not added to the statistical report.
+	 * Once the html is ready, it is saved for the user evaluation, and its link is presented in the main page. If the user has chosen to receive the email of the report,
+	 * an email will be sent to the given email address, or the crawler will print out that the email was unreachable, or that there was an internal error (for exmaple
+	 * the libraries and jars were not compiled with the .java files...)
+	 */
 	public void Run() {
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
 		String filename = RequestFactory.m_ConfigFileRootPath + "static/html/crawler_results/" + m_HtmlRepository.Host + "_" + dateFormat.format(new Date()) + ".html";
@@ -162,13 +175,9 @@ public class Crawler {
 			writer.close();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}		
-
-		addResultsLinkToFile(filename.substring(42), MAIN_PAGE_NAME);
-		addResultsLinkToFile(filename.substring(42), PostRequest.CRAWLER_STARTED_SUCCESSFULLY);
-		addResultsLinkToFile(filename.substring(42), PostRequest.CRAWLER_FAILED_BAD_HOSTNAME);
-		addResultsLinkToFile(filename.substring(42), PostRequest.CRAWLER_FAILED_EMPTY_HOSTNAME);
-		addFileLinkToHistoryHtml(HtmlRepository.GetInstance().Host);
+		}
+		
+		addResultsLinkToAllHtmlFiles(filename);
 		HtmlRepository.GetInstance().Dispose();
 		if (m_ShouldSendEmail) {
 			try {
@@ -184,6 +193,21 @@ public class Crawler {
 		isCrawlerRunning = false;
 	}
 
+	private void addResultsLinkToAllHtmlFiles(String i_Filename) {
+		addResultsLinkToFile(i_Filename.substring(i_Filename.indexOf(m_HtmlRepository.Host)), MAIN_PAGE_NAME);
+		addResultsLinkToFile(i_Filename.substring(i_Filename.indexOf(m_HtmlRepository.Host)), PostRequest.CRAWLER_STARTED_SUCCESSFULLY);
+		addResultsLinkToFile(i_Filename.substring(i_Filename.indexOf(m_HtmlRepository.Host)), PostRequest.CRAWLER_FAILED_BAD_HOSTNAME);
+		addResultsLinkToFile(i_Filename.substring(i_Filename.indexOf(m_HtmlRepository.Host)), PostRequest.CRAWLER_FAILED_EMPTY_HOSTNAME);
+		addResultsLinkToFile(i_Filename.substring(i_Filename.indexOf(m_HtmlRepository.Host)), ALREADY_RUNNING);
+		addLinkToHistoryFile(HtmlRepository.GetInstance().Host);
+	}
+
+	/**
+	 * Method used to write and add the link to the results to the index.html and all other appropriate files
+	 * 
+	 * @param i_FileToAdd
+	 * @param i_FileName
+	 */
 	private void addResultsLinkToFile(String i_FileToAdd, String i_FileName) {
 		File file = new File(i_FileName); 
 		File temp;
@@ -208,7 +232,12 @@ public class Crawler {
 		}
 	}
 
-	private void addFileLinkToHistoryHtml(String i_FileToAdd) {
+	/**
+	 * Writes the current domain to the history file
+	 * 
+	 * @param i_Domain
+	 */
+	private void addLinkToHistoryFile(String i_Domain) {
 		File file = new File(HISTORY_DOMAINS); 
 		File temp;
 		try {
@@ -220,7 +249,7 @@ public class Crawler {
 			while ((line = br.readLine()) != null) {
 				pw.println(line);
 				if (line.contains("History")) {
-					pw.println(i_FileToAdd);
+					pw.println(i_Domain);
 				}
 			}
 			
@@ -246,6 +275,11 @@ public class Crawler {
 		}
 	}
 
+	/**
+	 * Checks in both arrays that no threads are running
+	 * 
+	 * @return
+	 */
 	private boolean areThreadsStillRunning() {
 		for(Parser parser : m_Parsers) {
 			if (parser != null && parser.isAlive()) {
@@ -262,6 +296,10 @@ public class Crawler {
 		return false;
 	}
 
+	/**
+	 * Checks that the parsers are running, and if they are not, then creates a new parser to parse the newly added response
+	 * Used in the onAddedResponse callback method
+	 */
 	public void UpdateNewParser() {
 		for(int i = 0; i < m_Parsers.length; i++) {
 			if (m_Parsers[i] == null) {
@@ -273,11 +311,15 @@ public class Crawler {
 				m_Parsers[i].start();
 				break;
 			} else {
-				// All good with this one, they will get it
+				// All good with this one, the others will get it
 			}
 		}
 	}
 
+	/**
+	 * Checks that the Downloaders are running, and if they are not, then creates a new Downloader to get the newly added url
+	 * Used in the onAddedResponse callback method
+	 */
 	public void UpdateNewDownloader() {
 		for(int i = 0; i < m_Downloaders.length; i++) {
 			if (m_Downloaders[i] == null ) {
@@ -289,7 +331,7 @@ public class Crawler {
 				m_Downloaders[i].start();
 				break;
 			} else {
-				// All good with this one, they will get it
+				// All good with this one, the others will get it
 			}
 		}
 	}

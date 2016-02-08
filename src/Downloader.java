@@ -30,7 +30,7 @@ public class Downloader extends Thread {
 			}
 
 			if (fullResponse == null) {
-				// TODO: Remove from hashmap once basic flow works
+				System.out.println("Downloader did not receive response from URL " + url);
 				continue;
 			}
 

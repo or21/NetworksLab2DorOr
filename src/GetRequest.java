@@ -97,7 +97,6 @@ public class GetRequest extends HeadRequest {
 		}
 
 		// Finish the file - send 0 to let the client know.
-		// System.out.println((Integer.toHexString(0) + CRLF));
 		i_OutputStream.write((Integer.toHexString(0) + CRLF).getBytes());
 		i_OutputStream.write(m_CRLFInByteArray);
 		i_OutputStream.flush();

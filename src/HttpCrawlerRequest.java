@@ -30,6 +30,13 @@ public class HttpCrawlerRequest {
 		m_NumberOfRedirects = i_NumberOfRedirects;
 	}
 
+	/**
+	 * Uses a given socket to send a request to the given url, and return a response from it. Depending
+	 * on whether the url is an html, sends either a GET or HEAD.
+	 * 
+	 * @param i_Socket
+	 * @throws IOException
+	 */
 	private void sendRequest(Socket i_Socket) throws IOException {
 		m_StartingHttpRequestTime = System.currentTimeMillis();
 		PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(i_Socket.getOutputStream()))); 
@@ -49,6 +56,16 @@ public class HttpCrawlerRequest {
 		out.flush();
 	}
 
+	/**
+	 * Sends a request, and receives a response. Depending on the response headers, deals with it accordingly.
+	 * If the response was a 200 OK, returns it as is.
+	 * If the response header was a 301 or 302 redirects, recursively sends other requests, unless it has been redirected
+	 * three times.
+	 * If the response was neither of those, returns null.
+	 * 
+	 * @return the response as a full string, or a null
+	 * @throws IOException
+	 */
 	public String sendRequestReceiveResponse() throws IOException {
 		Socket socket = new Socket(m_Host, 80); 
 
@@ -69,7 +86,7 @@ public class HttpCrawlerRequest {
 		}
 
 		String[] response = responseAsString.toString().split("\r\n");
-		HashMap<String, String> headers = createResponseHeaders(response);
+		HashMap<String, String> headers = CreateResponseHeaders(response);
 		String responseCode = headers.get("response_code");
 		if(responseCode.contains("200 OK")) {
 			boolean isChunked = headers.containsKey("transfer-encoding") && 
@@ -118,7 +135,7 @@ public class HttpCrawlerRequest {
 		return null;
 	}
 
-	public static HashMap<String, String> createResponseHeaders(String[] response) {
+	public static HashMap<String, String> CreateResponseHeaders(String[] response) {
 		HashMap<String, String> headers = new HashMap<String, String>();
 		headers.put("response_code", response[0].substring(response[0].indexOf(" ")));
 		for(int i = 1; i < response.length; i++) {
@@ -134,6 +151,17 @@ public class HttpCrawlerRequest {
 		return headers;
 	}
 
+	/**
+	 * If for some reason, the user has chosen to send an http/1.1 request, that means that data will be received as CHUNKED, meaning
+	 * that the {@link Downloader} should read as chunked.
+	 * 
+	 * This section is a BONUS.
+	 * 
+	 * @param i_Reader
+	 * @param line
+	 * @param responseAsString
+	 * @throws IOException
+	 */
 	private void readResponseAsChunked(BufferedReader i_Reader, String line, StringBuilder responseAsString) throws IOException {
 		while((line = i_Reader.readLine()) != null) {
 			int amountToRead = Integer.parseInt(line, 16);

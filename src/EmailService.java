@@ -16,6 +16,17 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 public class EmailService {
+	
+	/**
+	 * Sends an email to the user, depending on the given parameters
+	 * 
+	 * @param i_From
+	 * @param i_Recipient
+	 * @param i_Subject
+	 * @param i_ResourceName
+	 * @param i_HostName
+	 * @throws MessagingException if something in the process is not verified, or goes wrong
+	 */
 	public static void SendEmail(String i_From, String i_Recipient, String i_Subject, String i_ResourceName, String i_HostName) 
 			throws MessagingException {
 

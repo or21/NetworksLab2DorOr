@@ -1,10 +1,10 @@
-import java.util.ArrayList;
+	import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class HTMLParser {
+public class HtmlParser {
 
 	ArrayList<String> m_Urls;
 
@@ -13,7 +13,7 @@ public class HTMLParser {
 	private int m_NumberOfLinksFound = 0;
 	private List<String> m_HtmlExtensions = Arrays.asList("html", "asp", "htm", "aspx", "php");
 
-	public HTMLParser() {
+	public HtmlParser() {
 		m_Urls = new ArrayList<>();
 	}
 
@@ -41,6 +41,19 @@ public class HTMLParser {
 		}
 	}
 
+	/**
+	 * Filters according to the following rules:
+	 * 		1. starts with as "/", counts as an internal link
+	 * 		2. starts with http:// or https://: 
+	 * 			if followed by the given host, counts as an internal link.
+	 * 			otherwise it is an external link
+	 * 		3. If the prefix doesn't have a . or has a ../, counts as an internal link, otherwise
+	 * 		4. If the link has a ".", then it is either a filename or something weird. Checks that
+	 * 		the extension is accepted by the crawler, otherwise adds it to the external links
+	 * 
+	 * @param i_PageAddress
+	 * @param i_LinkIdentifier
+	 */
 	private void filterAddress(String i_PageAddress, String i_LinkIdentifier) {
 		if (i_PageAddress.startsWith("//")) {
 			i_PageAddress = i_PageAddress.replaceFirst("//", "");

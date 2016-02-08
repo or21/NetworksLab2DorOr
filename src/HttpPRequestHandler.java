@@ -1,7 +1,7 @@
 import java.io.* ;
 import java.net.* ;
 
-public final class HTTPRequestHandler extends Thread
+public final class HttpPRequestHandler extends Thread
 {
 	public final static String CRLF = "\r\n";
 		
@@ -9,7 +9,7 @@ public final class HTTPRequestHandler extends Thread
 	private Runnable m_ManageThreadsCallback;
 	
 	// Constructor
-	public HTTPRequestHandler(Socket i_Socket, Runnable i_Callback)
+	public HttpPRequestHandler(Socket i_Socket, Runnable i_Callback)
 	{
 		this.m_Socket = i_Socket;
 		this.m_ManageThreadsCallback = i_Callback;

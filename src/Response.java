@@ -58,13 +58,22 @@ public class Response {
 		return m_Url;
 	}
 
+	/**
+	 * Generates a response given its url and the full response body with headers.
+	 * Splits the full response body to headers and content, and parses through the content-length, and its type, as well as the content itself
+	 * Works as an adapter function, in order for the parser not to have to deal with it.
+	 * 
+	 * @param i_Url
+	 * @param i_FullResponse
+	 * @return
+	 */
 	public static Response GenerateResponse(String i_Url, String i_FullResponse) {
 		if (i_FullResponse == null) {
 			return null;
 		}
 		
 		String[] headersAndContent = i_FullResponse.split("\r\n\r\n");
-		HashMap<String, String> headers = HttpCrawlerRequest.createResponseHeaders(headersAndContent[0].split("\r\n"));
+		HashMap<String, String> headers = HttpCrawlerRequest.CreateResponseHeaders(headersAndContent[0].split("\r\n"));
 		int contentLength = headers.containsKey("content-length") ? Integer.parseInt(headers.get("content-length")) : headersAndContent[1].length();
 		String contentType = headers.get("content-type");
 

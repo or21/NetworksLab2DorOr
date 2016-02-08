@@ -13,7 +13,7 @@ public class Parser extends Thread {
 	public void run() {
 		Response responseToParse;
 		while ((responseToParse = HtmlRepository.GetInstance().GetResponse()) != null) {
-			HTMLParser parser = new HTMLParser();
+			HtmlParser parser = new HtmlParser();
 			ArrayList<String> parsedUrls = parser.parse(responseToParse);
 			for(String url : parsedUrls) {
 				HtmlRepository.GetInstance().AddUrl(url);

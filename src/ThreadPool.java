@@ -32,7 +32,7 @@ public class ThreadPool {
 	public void Manage() {
 		synchronized (m_ManageLock) {
 			for (int i = 0; i < m_RunningRequests.size(); i++) {
-				if ((m_RunningRequests.get(i) != null) && (((HTTPRequestHandler) m_RunningRequests.get(i)).getSocket().isClosed())) { 
+				if ((m_RunningRequests.get(i) != null) && (((HttpPRequestHandler) m_RunningRequests.get(i)).getSocket().isClosed())) { 
 					m_RunningRequests.remove(i);
 					i--;
 				}

@@ -1,0 +1,14 @@
+=====================================================================================
+
+		Computer Networks Lab #2 - Or Brand, Dor Samet
+
+=====================================================================================
+
+Bonuses implemented by the crawler:
+==================================
+	1) Email service - if the user requests a report to be sent to them via email, the crawler does that.
+	2) Redirects - if a user supplies a site, that involves http redirects (301, and 302), the crawler will handle them appropriately.
+	3) Crawler knows how to handle parent links (../../).
+	4) execResults.html as a dynamicly built results page, and not as a static page.
+	5) Sends an http 1.1 request, and is able to read the data as chunked
+	6) Maintainable Object-Oriented implementation with design patterns.

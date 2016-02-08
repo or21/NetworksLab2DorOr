@@ -36,7 +36,7 @@ public class WebServer {
 				continue;
 			} else {
 				System.out.println("Recieved a new HTTP request");
-				HTTPRequestHandler request = new HTTPRequestHandler(connection, new Runnable() {
+				HttpPRequestHandler request = new HttpPRequestHandler(connection, new Runnable() {
 
 					@Override
 					public void run() {

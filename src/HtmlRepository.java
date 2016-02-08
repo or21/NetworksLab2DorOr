@@ -9,6 +9,7 @@ public class HtmlRepository {
 
 	private static HtmlRepository m_Instance;
 
+	// Concurrency objects, used to lock the different lists
 	private final static Object RESPONSES_LOCK_OBJECT = new Object();
 	private final static Object URLS_LOCK_OBJECT = new Object();
 	private final static Object EXTERNALS_LOCK_OBJECT = new Object();
@@ -46,6 +47,23 @@ public class HtmlRepository {
 		m_VideosTypes = getTypesFromConfig(configParams.get("videoExtensions")); 
 		m_DocsTypes = getTypesFromConfig(configParams.get("documentExtensions")); 
 	}
+	
+	/**
+	 * Sweet singleton instantiation method, with a private constructor given above
+	 * 
+	 * @return
+	 */
+	public static HtmlRepository GetInstance() {
+		if (m_Instance == null) {
+			synchronized (RESPONSES_LOCK_OBJECT) {
+				if(m_Instance == null) {
+					m_Instance = new HtmlRepository();
+				}
+			}
+		}
+
+		return m_Instance;
+	}
 
 	private ArrayList<String> getTypesFromConfig(String i_TypesAsString) {
 		ArrayList<String> typesToReturn = new ArrayList<String>();
@@ -58,18 +76,6 @@ public class HtmlRepository {
 	}
 
 	public String Host; // Public property
-
-	public static HtmlRepository GetInstance() {
-		if (m_Instance == null) {
-			synchronized (RESPONSES_LOCK_OBJECT) {
-				if(m_Instance == null) {
-					m_Instance = new HtmlRepository();
-				}
-			}
-		}
-
-		return m_Instance;
-	}
 
 	public HashSet<String> GetDisallowedUrls() {
 		return m_DisallowedUrls;
@@ -123,6 +129,11 @@ public class HtmlRepository {
 		return urlToParse;
 	}
 
+	/**
+	 * Parses the /robots.txt file's content to two lists
+	 * 
+	 * @param i_RobotsContent
+	 */
 	public void ParseRobotsContent(String i_RobotsContent) {
 		String[] lines = i_RobotsContent.split("\r\n");
 		for(String line : lines) {
@@ -143,6 +154,15 @@ public class HtmlRepository {
 		}
 	}
 
+	/**
+	 * Creates the statistics string, according to the results saved by the hashmap, m_ExistingResponses.
+	 * Handles responses that are not null
+	 * 
+	 * @param i_IgnoreRobotsEnabled
+	 * @param i_TCPPortScanEnabled
+	 * @param i_OpenPorts
+	 * @return
+	 */
 	public String CreateStatistics(boolean i_IgnoreRobotsEnabled, boolean i_TCPPortScanEnabled, ArrayList<Integer> i_OpenPorts) {
 		int numberOfImages = 0;
 		int totalImagesSize = 0;
@@ -179,7 +199,7 @@ public class HtmlRepository {
 				totalPagesSize += contentLength;
 			}
 		}
-
+		
 		StringBuilder response = new StringBuilder();
 
 		response.append("<html><head><title>Your results are here!</title></head><body>");
@@ -196,7 +216,7 @@ public class HtmlRepository {
 		response.append("Number of external links is: ").append(numOfExternalLinks).append("<br>");
 		response.append("Number of domains the crawled domain is connected to: ").append(m_ExternalsDomains.size()).append("<br>");
 
-		addPreviousDomains();
+		getPreviousCrawledDomains();
 		for (String domain : m_ExternalsDomains) {
 			if (m_PreviousDomains.contains(domain)) {
 				response.append(("<a href=\"http://" + domain + "\">" + domain +"</a>" + "<br>"));
@@ -249,7 +269,10 @@ public class HtmlRepository {
 		return m_ImagesTypes.contains(i_Extension);
 	}
 
-	private void addPreviousDomains() {
+	/**
+	 * Gets the previous crawled domains from the history file
+	 */
+	private void getPreviousCrawledDomains() {
 		m_PreviousDomains = new ArrayList<String>();
 		try {
 			String fileName = Crawler.HISTORY_DOMAINS;
